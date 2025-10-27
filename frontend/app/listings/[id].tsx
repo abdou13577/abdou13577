@@ -83,7 +83,7 @@ export default function ListingDetailScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size=\"large\" color=\"#007AFF\" />
+        <ActivityIndicator size="large" color="#007AFF" />
       </View>
     );
   }
@@ -95,7 +95,7 @@ export default function ListingDetailScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name=\"arrow-back\" size={24} color=\"#FFFFFF\" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={{ width: 24 }} />
       </View>
