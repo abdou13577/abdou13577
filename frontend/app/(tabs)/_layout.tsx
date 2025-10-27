@@ -6,20 +6,21 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.red,
-        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarActiveTintColor: COLORS.gold,
+        tabBarInactiveTintColor: COLORS.textSecondary,
         tabBarStyle: {
-          backgroundColor: COLORS.cardBackground,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          height: 70,
-          paddingBottom: 10,
-          paddingTop: 10,
+          backgroundColor: COLORS.black,
+          borderTopWidth: 2,
+          borderTopColor: COLORS.red,
+          height: 75,
+          paddingBottom: 12,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginTop: 4,
+          fontSize: 13,
+          fontWeight: '700',
+          marginTop: 5,
+          letterSpacing: 0.5,
         },
         headerShown: false,
       }}
