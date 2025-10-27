@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } fr
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
+import { COLORS } from '../../constants/colors';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -28,14 +29,14 @@ export default function ProfileScreen() {
             <Image source={{ uri: user.profile_image }} style={styles.avatar} />
           ) : (
             <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Ionicons name="person" size={48} color="#FFFFFF" />
+              <Ionicons name="person" size={48} color={COLORS.black} />
             </View>
           )}
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
           {user.rating > 0 && (
             <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={20} color="#FFD700" />
+              <Ionicons name="star" size={20} color={COLORS.gold} />
               <Text style={styles.ratingText}>{user.rating.toFixed(1)} ({user.review_count} Bewertungen)</Text>
             </View>
           )}
@@ -43,36 +44,36 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Meine Anzeigen</Text>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/my-listings' as any)}>
-            <Ionicons name="list" size={24} color="#007AFF" />
+            <Ionicons name="list" size={24} color={COLORS.gold} />
             <Text style={styles.menuText}>Meine Anzeigen</Text>
-            <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/offers' as any)}>
-            <Ionicons name="pricetag" size={24} color="#007AFF" />
+            <Ionicons name="pricetag" size={24} color={COLORS.gold} />
             <Text style={styles.menuText}>Preisangebote</Text>
-            <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
           </TouchableOpacity>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Hilfe</Text>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/support' as any)}>
-            <Ionicons name="help-circle" size={24} color="#007AFF" />
+            <Ionicons name="help-circle" size={24} color={COLORS.gold} />
             <Text style={styles.menuText}>Support</Text>
-            <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
           </TouchableOpacity>
         </View>
         {user.role === 'admin' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Verwaltung</Text>
             <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/admin/dashboard' as any)}>
-              <Ionicons name="shield" size={24} color="#FF3B30" />
+              <Ionicons name="shield" size={24} color={COLORS.red} />
               <Text style={styles.menuText}>Admin Dashboard</Text>
-              <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
             </TouchableOpacity>
           </View>
         )}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out" size={24} color="#FF3B30" />
+          <Ionicons name="log-out" size={24} color={COLORS.red} />
           <Text style={styles.logoutText}>Abmelden</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -81,20 +82,20 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E' },
-  profileHeader: { backgroundColor: '#FFFFFF', alignItems: 'center', paddingVertical: 32, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
+  profileHeader: { backgroundColor: COLORS.cardBackground, alignItems: 'center', paddingVertical: 32, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 16 },
-  avatarPlaceholder: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center' },
-  userName: { fontSize: 24, fontWeight: 'bold', color: '#1C1C1E', marginBottom: 4 },
-  userEmail: { fontSize: 16, color: '#8E8E93', marginBottom: 12 },
-  ratingContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
-  ratingText: { fontSize: 16, fontWeight: '600', color: '#1C1C1E', marginLeft: 6 },
-  section: { marginTop: 24, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#E5E5EA' },
-  sectionTitle: { fontSize: 14, fontWeight: '600', color: '#8E8E93', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#F2F2F7' },
-  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
-  menuText: { flex: 1, fontSize: 16, color: '#1C1C1E', marginLeft: 12 },
-  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', marginTop: 24, marginHorizontal: 16, paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: '#FF3B30', marginBottom: 32 },
-  logoutText: { fontSize: 18, fontWeight: '600', color: '#FF3B30', marginLeft: 8 },
+  avatarPlaceholder: { backgroundColor: COLORS.gold, justifyContent: 'center', alignItems: 'center' },
+  userName: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary, marginBottom: 4 },
+  userEmail: { fontSize: 16, color: COLORS.textSecondary, marginBottom: 12 },
+  ratingContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: COLORS.border },
+  ratingText: { fontSize: 16, fontWeight: '600', color: COLORS.textPrimary, marginLeft: 6 },
+  section: { marginTop: 24, backgroundColor: COLORS.cardBackground, borderTopWidth: 1, borderBottomWidth: 1, borderColor: COLORS.border },
+  sectionTitle: { fontSize: 14, fontWeight: '600', color: COLORS.textMuted, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: COLORS.background },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  menuText: { flex: 1, fontSize: 16, color: COLORS.textPrimary, marginLeft: 12 },
+  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.cardBackground, marginTop: 24, marginHorizontal: 16, paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: COLORS.red, marginBottom: 32 },
+  logoutText: { fontSize: 18, fontWeight: '600', color: COLORS.red, marginLeft: 8 },
 });

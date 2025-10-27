@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import api from '../../services/api';
+import { COLORS } from '../../constants/colors';
 
 interface Conversation {
   other_user_id: string;
@@ -49,7 +50,7 @@ export default function MessagesScreen() {
         <Image source={{ uri: item.other_user_image }} style={styles.avatar} />
       ) : (
         <View style={[styles.avatar, styles.avatarPlaceholder]}>
-          <Ionicons name="person" size={24} color="#FFFFFF" />
+          <Ionicons name="person" size={24} color={COLORS.black} />
         </View>
       )}
       <View style={styles.conversationContent}>
@@ -67,7 +68,7 @@ export default function MessagesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={COLORS.red} />
       </View>
     );
   }
@@ -77,14 +78,10 @@ export default function MessagesScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Nachrichten</Text>
       </View>
-      <FlatList
-        data={conversations}
-        renderItem={renderConversation}
-        keyExtractor={(item) => `${item.listing_id}_${item.other_user_id}`}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      <FlatList data={conversations} renderItem={renderConversation} keyExtractor={(item) => `${item.listing_id}_${item.other_user_id}`} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.red} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={80} color="#C7C7CC" />
+            <Ionicons name="chatbubbles-outline" size={80} color={COLORS.textMuted} />
             <Text style={styles.emptyText}>Keine Nachrichten</Text>
           </View>
         }
@@ -94,20 +91,20 @@ export default function MessagesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E' },
-  conversationCard: { flexDirection: 'row', backgroundColor: '#FFFFFF', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
+  conversationCard: { flexDirection: 'row', backgroundColor: COLORS.cardBackground, padding: 16, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   avatar: { width: 56, height: 56, borderRadius: 28, marginRight: 12 },
-  avatarPlaceholder: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center' },
+  avatarPlaceholder: { backgroundColor: COLORS.gold, justifyContent: 'center', alignItems: 'center' },
   conversationContent: { flex: 1, justifyContent: 'center' },
   conversationHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  userName: { fontSize: 16, fontWeight: '600', color: '#1C1C1E', flex: 1 },
-  timeText: { fontSize: 12, color: '#8E8E93' },
-  listingTitle: { fontSize: 14, color: '#007AFF', marginBottom: 4 },
-  lastMessage: { fontSize: 14, color: '#8E8E93' },
+  userName: { fontSize: 16, fontWeight: '600', color: COLORS.textPrimary, flex: 1 },
+  timeText: { fontSize: 12, color: COLORS.textMuted },
+  listingTitle: { fontSize: 14, color: COLORS.red, marginBottom: 4 },
+  lastMessage: { fontSize: 14, color: COLORS.textSecondary },
   listingThumbnail: { width: 56, height: 56, borderRadius: 8, marginLeft: 12 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 100 },
-  emptyText: { fontSize: 16, color: '#8E8E93', marginTop: 16 },
+  emptyText: { fontSize: 16, color: COLORS.textMuted, marginTop: 16 },
 });
