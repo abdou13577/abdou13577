@@ -28,24 +28,24 @@ export default function Index() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Ionicons name="apps" size={80} color="#007AFF" />
+          <Ionicons name="pricetags" size={80} color="#007AFF" />
         </View>
         
-        <Text style={styles.title}>إعلانات كلاسيكية</Text>
-        <Text style={styles.subtitle}>اشترِ وبع كل شيء بسهولة</Text>
+        <Text style={styles.title}>ChancenMarket</Text>
+        <Text style={styles.subtitle}>Kaufen und verkaufen Sie alles einfach</Text>
         
         <TouchableOpacity
           style={styles.loginButton}
           onPress={() => router.push('/auth/login')}
         >
-          <Text style={styles.loginButtonText}>تسجيل الدخول</Text>
+          <Text style={styles.loginButtonText}>Anmelden</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
           style={styles.registerButton}
           onPress={() => router.push('/auth/register')}
         >
-          <Text style={styles.registerButtonText}>إنشاء حساب جديد</Text>
+          <Text style={styles.registerButtonText}>Konto erstellen</Text>
         </TouchableOpacity>
       </View>
     </View>
