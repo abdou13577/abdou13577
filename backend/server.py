@@ -74,12 +74,12 @@ async def register(user_data: UserCreate):
     # Check if user exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
-        raise HTTPException(status_code=400, detail="البريد الإلكتروني مستخدم بالفعل")
+        raise HTTPException(status_code=400, detail="E-Mail wird bereits verwendet")
     
     # Validate password strength
     password = user_data.password
     if len(password) < 8 or not any(c.isupper() for c in password) or not any(c.isdigit() for c in password):
-        raise HTTPException(status_code=400, detail="كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير وأرقام")
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens 8 Zeichen, einen Großbuchstaben und Zahlen enthalten")
     
     # Create user
     user_id = str(uuid.uuid4())
