@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image, A
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
+import { COLORS } from '../../constants/colors';
 
 interface Listing {
   id: string;
@@ -39,7 +40,7 @@ export default function SearchScreen() {
         <Image source={{ uri: item.images[0] }} style={styles.listingImage} resizeMode="cover" />
       ) : (
         <View style={[styles.listingImage, styles.noImage]}>
-          <Ionicons name="image-outline" size={40} color="#C7C7CC" />
+          <Ionicons name="image-outline" size={40} color={COLORS.textMuted} />
         </View>
       )}
       <View style={styles.listingInfo}>
@@ -56,18 +57,11 @@ export default function SearchScreen() {
       </View>
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
-          <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Nach allem suchen..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
+          <Ionicons name="search" size={20} color={COLORS.textMuted} style={styles.searchIcon} />
+          <TextInput style={styles.searchInput} placeholder="Nach allem suchen..." placeholderTextColor={COLORS.textMuted} value={searchQuery} onChangeText={setSearchQuery} onSubmitEditing={handleSearch} returnKeyType="search" />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color="#8E8E93" />
+              <Ionicons name="close-circle" size={20} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -77,25 +71,20 @@ export default function SearchScreen() {
       </View>
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={COLORS.red} />
         </View>
       ) : searched ? (
-        <FlatList
-          data={listings}
-          renderItem={renderListing}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={styles.listingsList}
+        <FlatList data={listings} renderItem={renderListing} keyExtractor={(item) => item.id} numColumns={2} contentContainerStyle={styles.listingsList}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="search-outline" size={60} color="#C7C7CC" />
+              <Ionicons name="search-outline" size={60} color={COLORS.textMuted} />
               <Text style={styles.emptyText}>Keine Ergebnisse gefunden</Text>
             </View>
           }
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <Ionicons name="search-outline" size={80} color="#C7C7CC" />
+          <Ionicons name="search-outline" size={80} color={COLORS.textMuted} />
           <Text style={styles.emptyText}>Anzeigen durchsuchen</Text>
         </View>
       )}
@@ -104,23 +93,23 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E' },
-  searchContainer: { flexDirection: 'row', padding: 16, backgroundColor: '#FFFFFF', gap: 8 },
-  searchInputContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#F2F2F7', borderRadius: 12, paddingHorizontal: 12 },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
+  searchContainer: { flexDirection: 'row', padding: 16, backgroundColor: COLORS.cardBackground, gap: 8 },
+  searchInputContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: COLORS.border },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: '#1C1C1E' },
-  searchButton: { backgroundColor: '#007AFF', paddingHorizontal: 20, borderRadius: 12, justifyContent: 'center' },
-  searchButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: COLORS.textPrimary },
+  searchButton: { backgroundColor: COLORS.red, paddingHorizontal: 20, borderRadius: 12, justifyContent: 'center' },
+  searchButtonText: { color: COLORS.textPrimary, fontSize: 16, fontWeight: '600' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   listingsList: { padding: 8 },
-  listingCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12, margin: 8, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  listingImage: { width: '100%', height: 150, backgroundColor: '#F2F2F7' },
+  listingCard: { flex: 1, backgroundColor: COLORS.cardBackground, borderRadius: 12, margin: 8, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.border },
+  listingImage: { width: '100%', height: 150, backgroundColor: COLORS.background },
   noImage: { justifyContent: 'center', alignItems: 'center' },
   listingInfo: { padding: 12 },
-  listingTitle: { fontSize: 16, fontWeight: '600', color: '#1C1C1E', marginBottom: 4 },
-  listingPrice: { fontSize: 18, fontWeight: 'bold', color: '#007AFF' },
+  listingTitle: { fontSize: 16, fontWeight: '600', color: COLORS.textPrimary, marginBottom: 4 },
+  listingPrice: { fontSize: 18, fontWeight: 'bold', color: COLORS.red },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 80 },
-  emptyText: { fontSize: 16, color: '#8E8E93', marginTop: 16 },
+  emptyText: { fontSize: 16, color: COLORS.textMuted, marginTop: 16 },
 });

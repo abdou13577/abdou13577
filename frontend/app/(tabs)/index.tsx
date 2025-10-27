@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshContr
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
+import { COLORS } from '../../constants/colors';
 
 interface Listing {
   id: string;
@@ -65,14 +66,9 @@ export default function HomeScreen() {
   };
 
   const renderCategory = ({ item }: { item: Category }) => (
-    <TouchableOpacity
-      style={[styles.categoryCard, selectedCategory === item.id && styles.categoryCardSelected]}
-      onPress={() => loadListingsByCategory(item.id)}
-    >
-      <Ionicons name={item.icon as any} size={24} color={selectedCategory === item.id ? '#FFFFFF' : '#007AFF'} />
-      <Text style={[styles.categoryText, selectedCategory === item.id && styles.categoryTextSelected]}>
-        {item.name_de}
-      </Text>
+    <TouchableOpacity style={[styles.categoryCard, selectedCategory === item.id && styles.categoryCardSelected]} onPress={() => loadListingsByCategory(item.id)}>
+      <Ionicons name={item.icon as any} size={24} color={selectedCategory === item.id ? COLORS.black : COLORS.gold} />
+      <Text style={[styles.categoryText, selectedCategory === item.id && styles.categoryTextSelected]}>{item.name_de}</Text>
     </TouchableOpacity>
   );
 
@@ -82,14 +78,14 @@ export default function HomeScreen() {
         <Image source={{ uri: item.images[0] }} style={styles.listingImage} resizeMode="cover" />
       ) : (
         <View style={[styles.listingImage, styles.noImage]}>
-          <Ionicons name="image-outline" size={40} color="#C7C7CC" />
+          <Ionicons name="image-outline" size={40} color={COLORS.textMuted} />
         </View>
       )}
       <View style={styles.listingInfo}>
         <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
         <Text style={styles.listingPrice}>€{item.price}</Text>
         <View style={styles.listingMeta}>
-          <Ionicons name="eye-outline" size={14} color="#8E8E93" />
+          <Ionicons name="eye-outline" size={14} color={COLORS.textMuted} />
           <Text style={styles.listingViews}>{item.views}</Text>
         </View>
       </View>
@@ -99,7 +95,7 @@ export default function HomeScreen() {
   if (loading && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={COLORS.red} />
       </View>
     );
   }
@@ -111,26 +107,13 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.categoriesSection}>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={[{ id: null, name_de: 'Alle', icon: 'apps' }, ...categories] as any}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.id || 'all'}
-          contentContainerStyle={styles.categoriesList}
-        />
+        <FlatList horizontal showsHorizontalScrollIndicator={false} data={[{ id: null, name_de: 'Alle', icon: 'apps' }, ...categories] as any} renderItem={renderCategory} keyExtractor={(item) => item.id || 'all'} contentContainerStyle={styles.categoriesList} />
       </View>
 
-      <FlatList
-        data={listings}
-        renderItem={renderListing}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.listingsList}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      <FlatList data={listings} renderItem={renderListing} keyExtractor={(item) => item.id} numColumns={2} contentContainerStyle={styles.listingsList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.red} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="folder-open-outline" size={60} color="#C7C7CC" />
+            <Ionicons name="folder-open-outline" size={60} color={COLORS.textMuted} />
             <Text style={styles.emptyText}>Keine Anzeigen</Text>
           </View>
         }
@@ -140,25 +123,25 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F5F5' },
-  header: { backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#1C1C1E' },
-  categoriesSection: { backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
+  categoriesSection: { backgroundColor: COLORS.cardBackground, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   categoriesList: { paddingHorizontal: 16, paddingVertical: 12 },
-  categoryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
-  categoryCardSelected: { backgroundColor: '#007AFF' },
-  categoryText: { fontSize: 14, fontWeight: '600', color: '#007AFF', marginLeft: 6 },
-  categoryTextSelected: { color: '#FFFFFF' },
+  categoryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: COLORS.border },
+  categoryCardSelected: { backgroundColor: COLORS.gold, borderColor: COLORS.gold },
+  categoryText: { fontSize: 14, fontWeight: '600', color: COLORS.gold, marginLeft: 6 },
+  categoryTextSelected: { color: COLORS.black },
   listingsList: { padding: 8 },
-  listingCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12, margin: 8, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  listingImage: { width: '100%', height: 150, backgroundColor: '#F2F2F7' },
+  listingCard: { flex: 1, backgroundColor: COLORS.cardBackground, borderRadius: 12, margin: 8, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.border },
+  listingImage: { width: '100%', height: 150, backgroundColor: COLORS.background },
   noImage: { justifyContent: 'center', alignItems: 'center' },
   listingInfo: { padding: 12 },
-  listingTitle: { fontSize: 16, fontWeight: '600', color: '#1C1C1E', marginBottom: 4 },
-  listingPrice: { fontSize: 18, fontWeight: 'bold', color: '#007AFF', marginBottom: 8 },
+  listingTitle: { fontSize: 16, fontWeight: '600', color: COLORS.textPrimary, marginBottom: 4 },
+  listingPrice: { fontSize: 18, fontWeight: 'bold', color: COLORS.red, marginBottom: 8 },
   listingMeta: { flexDirection: 'row', alignItems: 'center' },
-  listingViews: { fontSize: 12, color: '#8E8E93', marginLeft: 4 },
+  listingViews: { fontSize: 12, color: COLORS.textMuted, marginLeft: 4 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
-  emptyText: { fontSize: 16, color: '#8E8E93', marginTop: 16 },
+  emptyText: { fontSize: 16, color: COLORS.textMuted, marginTop: 16 },
 });
