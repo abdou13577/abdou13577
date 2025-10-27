@@ -123,7 +123,19 @@ async def get_categories():
             "icon": "car",
             "fields": [
                 {"name": "brand", "label": "Marke", "type": "select", "options": ["Audi", "BMW", "Mercedes-Benz", "Volkswagen", "Opel", "Ford", "Toyota", "Honda", "Nissan", "Mazda", "Hyundai", "Kia", "Peugeot", "Renault", "Fiat", "Volvo", "Skoda", "Seat", "Porsche", "Tesla", "Andere"]},
-                {"name": "model", "label": "Modell", "type": "text"},
+                {"name": "model", "label": "Modell", "type": "select_dynamic", "options": {
+                    "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT", "R8", "e-tron"],
+                    "BMW": ["1er", "2er", "3er", "4er", "5er", "6er", "7er", "8er", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "i3", "i4", "iX"],
+                    "Mercedes-Benz": ["A-Klasse", "B-Klasse", "C-Klasse", "E-Klasse", "S-Klasse", "GLA", "GLB", "GLC", "GLE", "GLS", "CLA", "CLS", "AMG GT", "EQC", "EQS"],
+                    "Volkswagen": ["Polo", "Golf", "Passat", "Tiguan", "Touareg", "T-Roc", "T-Cross", "Arteon", "ID.3", "ID.4", "ID.5"],
+                    "Opel": ["Corsa", "Astra", "Insignia", "Mokka", "Crossland", "Grandland"],
+                    "Ford": ["Fiesta", "Focus", "Mondeo", "Kuga", "Puma", "Explorer", "Mustang"],
+                    "Toyota": ["Aygo", "Yaris", "Corolla", "Camry", "RAV4", "Highlander", "C-HR", "Prius"],
+                    "Honda": ["Jazz", "Civic", "Accord", "CR-V", "HR-V"],
+                    "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "Leaf"],
+                    "Mazda": ["2", "3", "6", "CX-3", "CX-5", "CX-30", "MX-5"],
+                    "Andere": []
+                }},
                 {"name": "year", "label": "Baujahr", "type": "number"},
                 {"name": "mileage", "label": "Kilometerstand", "type": "number"},
                 {"name": "fuel_type", "label": "Kraftstoffart", "type": "select", "options": ["Benzin", "Diesel", "Elektro", "Hybrid", "Plug-in-Hybrid", "Erdgas (CNG)", "Autogas (LPG)"]},
