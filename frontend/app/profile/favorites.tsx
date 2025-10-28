@@ -66,7 +66,7 @@ export default function FavoritesScreen() {
       )}
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.price}>€{item.price.toFixed(2)}</Text>
+        <Text style={styles.price}>€{item.price.toLocaleString('de-DE')}</Text>
       </View>
       <TouchableOpacity 
         style={styles.removeButton} 
