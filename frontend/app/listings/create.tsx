@@ -61,6 +61,20 @@ export default function CreateListingScreen() {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  const moveImageUp = (index: number) => {
+    if (index === 0) return;
+    const newImages = [...images];
+    [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+    setImages(newImages);
+  };
+
+  const moveImageDown = (index: number) => {
+    if (index === images.length - 1) return;
+    const newImages = [...images];
+    [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+    setImages(newImages);
+  };
+
   const generateDescription = async () => {
     if (!title || !selectedCategory) {
       Alert.alert('Fehler', 'Bitte geben Sie zuerst Titel und Kategorie ein');
