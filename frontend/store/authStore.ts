@@ -24,10 +24,14 @@ interface AuthState {
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
   loading: true,
+  setUser: (user: User) => {
+    AsyncStorage.setItem('user', JSON.stringify(user));
+    set({ user });
+  },
 
   login: async (email: string, password: string) => {
     try {
