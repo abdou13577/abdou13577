@@ -223,7 +223,35 @@ export default function CreateListingScreen() {
                 <Text style={styles.aiButtonText}>KI</Text>
               </TouchableOpacity>
             </View>
-            <TextInput style={styles.input} placeholder="Preis eingeben" placeholderTextColor={COLORS.textMuted} value={price} onChangeText={setPrice} keyboardType="numeric" />
+            <TextInput 
+              style={styles.input} 
+              placeholder="z.B. 20000" 
+              placeholderTextColor={COLORS.textMuted} 
+              value={price} 
+              onChangeText={(text) => {
+                // إزالة جميع الأحرف غير الرقمية
+                const numericValue = text.replace(/[^0-9]/g, '');
+                // إضافة الفواصل
+                if (numericValue) {
+                  const formatted = parseInt(numericValue).toLocaleString('de-DE');
+                  setPrice(formatted);
+                } else {
+                  setPrice('');
+                }
+              }} 
+              keyboardType="numeric" 
+            />
+            
+            {/* Checkbox قابل للتفاوض */}
+            <TouchableOpacity 
+              style={styles.checkboxContainer} 
+              onPress={() => setNegotiable(!negotiable)}
+            >
+              <View style={[styles.checkbox, negotiable && styles.checkboxChecked]}>
+                {negotiable && <Ionicons name="checkmark" size={18} color={COLORS.black} />}
+              </View>
+              <Text style={styles.checkboxLabel}>Preis ist verhandelbar (VB)</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
