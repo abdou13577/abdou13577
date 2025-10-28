@@ -27,6 +27,9 @@ export default function CreateListingScreen() {
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState('');
+  const [negotiable, setNegotiable] = useState(false);
+  const [location, setLocation] = useState('');
+  const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
     loadCategories();
