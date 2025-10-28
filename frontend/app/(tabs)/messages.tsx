@@ -142,4 +142,11 @@ const styles = StyleSheet.create({
   listingThumbnail: { width: 56, height: 56, borderRadius: 8, marginLeft: 12 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 100 },
   emptyText: { fontSize: 16, color: COLORS.textMuted, marginTop: 16 },
+  notLoggedInContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
+  notLoggedInTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary, marginTop: 24, marginBottom: 12 },
+  notLoggedInText: { fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 24, marginBottom: 32 },
+  loginButton: { backgroundColor: COLORS.gold, paddingVertical: 14, paddingHorizontal: 40, borderRadius: 12, width: '100%', maxWidth: 320, marginBottom: 12 },
+  loginButtonText: { color: COLORS.black, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  registerButton: { backgroundColor: 'transparent', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 12, width: '100%', maxWidth: 320, borderWidth: 2, borderColor: COLORS.gold },
+  registerButtonText: { color: COLORS.gold, fontSize: 18, fontWeight: '700', textAlign: 'center' },
 });
