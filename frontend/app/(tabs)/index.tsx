@@ -107,7 +107,15 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.categoriesSection}>
-        <FlatList horizontal showsHorizontalScrollIndicator={false} data={[{ id: null, name_de: 'Alle', icon: 'apps' }, ...categories] as any} renderItem={renderCategory} keyExtractor={(item) => item.id || 'all'} contentContainerStyle={styles.categoriesList} />
+        <FlatList 
+          horizontal 
+          showsHorizontalScrollIndicator={true}
+          scrollEnabled={true}
+          data={[{ id: null, name_de: 'Alle', icon: 'apps' }, ...categories] as any} 
+          renderItem={renderCategory} 
+          keyExtractor={(item) => item.id || 'all'} 
+          contentContainerStyle={styles.categoriesList} 
+        />
       </View>
 
       <FlatList data={listings} renderItem={renderListing} keyExtractor={(item) => item.id} numColumns={2} contentContainerStyle={styles.listingsList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.red} />}
