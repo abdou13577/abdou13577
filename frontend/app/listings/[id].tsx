@@ -94,6 +94,13 @@ export default function ListingDetailScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={COLORS.red} />
         </TouchableOpacity>
+        <TouchableOpacity onPress={toggleFavorite} disabled={favoriteLoading}>
+          <Ionicons 
+            name={isFavorited ? "heart" : "heart-outline"} 
+            size={28} 
+            color={isFavorited ? COLORS.red : COLORS.textPrimary} 
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView>
