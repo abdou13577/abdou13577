@@ -12,15 +12,18 @@ export default function TabsLayout() {
           backgroundColor: COLORS.black,
           borderTopWidth: 2,
           borderTopColor: COLORS.red,
-          height: 75,
-          paddingBottom: 12,
+          height: 80,
+          paddingBottom: 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: '700',
-          marginTop: 5,
-          letterSpacing: 0.5,
+          marginTop: 4,
+          marginBottom: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
         headerShown: false,
       }}
