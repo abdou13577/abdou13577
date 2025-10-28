@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
         update_data['phone_enabled'] = phone_enabled
     if update_data:
         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
-    return {"message": "Profil aktualisiert"}
+    user = await db.users.find_one({"id": current_user['user_id']})
+    if not user:
+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+
+# Profile management endpoints
+@api_router.put("/users/profile")
+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
+    update_data = {}
+    if 'name' in profile_data:
+        update_data['name'] = profile_data['name']
+    if 'profile_image' in profile_data:
+        update_data['profile_image'] = profile_data['profile_image']
+    if 'phone_enabled' in profile_data:
+        update_data['phone_enabled'] = profile_data['phone_enabled']
+    
+    if update_data:
+        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+    
+    user = await db.users.find_one({"id": current_user['user_id']})
+    if not user:
+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
 
 # ============= CATEGORIES =============
 @api_router.get("/categories")
