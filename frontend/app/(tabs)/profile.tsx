@@ -61,12 +61,23 @@ export default function ProfileScreen() {
           )}
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
+          <View style={styles.userIdContainer}>
+            <Ionicons name="finger-print" size={16} color={COLORS.textMuted} />
+            <Text style={styles.userId}>ID: {user.id.substring(0, 8)}...</Text>
+          </View>
           {user.rating > 0 && (
             <View style={styles.ratingContainer}>
               <Ionicons name="star" size={20} color={COLORS.gold} />
               <Text style={styles.ratingText}>{user.rating.toFixed(1)} ({user.review_count} Bewertungen)</Text>
             </View>
           )}
+          <TouchableOpacity 
+            style={styles.editButton} 
+            onPress={() => router.push('/profile/edit' as any)}
+          >
+            <Ionicons name="create" size={20} color={COLORS.black} />
+            <Text style={styles.editButtonText}>Profil bearbeiten</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Meine Anzeigen</Text>
