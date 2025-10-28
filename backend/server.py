@@ -488,6 +488,7 @@ async def handle_offer_action(action_data: OfferAction, current_user: dict = Dep
         "listing_id": offer['listing_id'],
         "content": auto_message,
         "message_type": MessageType.TEXT,
+        "read": False,
         "created_at": datetime.utcnow()
     }
     await db.messages.insert_one(message_dict)
