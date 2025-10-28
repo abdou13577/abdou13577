@@ -1,53 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Index() {
   const router = useRouter();
-  const { user, loading } = useAuthStore();
+  const { loading } = useAuthStore();
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        router.replace('/(tabs)');
-      }
+      // توجيه جميع المستخدمين (مسجلين وغير مسجلين) للصفحة الرئيسية
+      router.replace('/(tabs)');
     }
-  }, [user, loading]);
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+  }, [loading]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="pricetags" size={80} color="#007AFF" />
-        </View>
-        
-        <Text style={styles.title}>ChancenMarket</Text>
-        <Text style={styles.subtitle}>Kaufen und verkaufen Sie alles einfach</Text>
-        
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => router.push('/auth/login')}
-        >
-          <Text style={styles.loginButtonText}>Anmelden</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.registerButton}
-          onPress={() => router.push('/auth/register')}
-        >
-          <Text style={styles.registerButtonText}>Konto erstellen</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+      <ActivityIndicator size="large" color="#FFCE00" />
     </View>
   );
 }
