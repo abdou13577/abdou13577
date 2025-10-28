@@ -16,7 +16,34 @@ export default function ProfileScreen() {
     ]);
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Mein Profil</Text>
+        </View>
+        <View style={styles.notLoggedInContainer}>
+          <Ionicons name="person-circle" size={100} color={COLORS.textMuted} />
+          <Text style={styles.notLoggedInTitle}>Anmelden erforderlich</Text>
+          <Text style={styles.notLoggedInText}>
+            Sie müssen sich anmelden, um auf Ihr Profil zuzugreifen und Ihre Anzeigen zu verwalten.
+          </Text>
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={() => router.push('/auth/login')}
+          >
+            <Text style={styles.loginButtonText}>Jetzt anmelden</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.registerButton} 
+            onPress={() => router.push('/auth/register')}
+          >
+            <Text style={styles.registerButtonText}>Konto erstellen</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
