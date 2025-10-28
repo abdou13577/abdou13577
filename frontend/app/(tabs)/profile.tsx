@@ -115,7 +115,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 48, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
   profileHeader: { backgroundColor: COLORS.cardBackground, alignItems: 'center', paddingVertical: 32, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 16 },

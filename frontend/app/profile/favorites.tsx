@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    paddingTop: 48,
+    paddingTop: 12,
     borderBottomWidth: 2,
     borderBottomColor: COLORS.red,
   },
