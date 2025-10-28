@@ -125,4 +125,11 @@ const styles = StyleSheet.create({
   menuText: { flex: 1, fontSize: 16, color: COLORS.textPrimary, marginLeft: 12 },
   logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.cardBackground, marginTop: 24, marginHorizontal: 16, paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: COLORS.red, marginBottom: 32 },
   logoutText: { fontSize: 18, fontWeight: '600', color: COLORS.red, marginLeft: 8 },
+  notLoggedInContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
+  notLoggedInTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.textPrimary, marginTop: 24, marginBottom: 12 },
+  notLoggedInText: { fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 24, marginBottom: 32 },
+  loginButton: { backgroundColor: COLORS.gold, paddingVertical: 14, paddingHorizontal: 40, borderRadius: 12, width: '100%', maxWidth: 320, marginBottom: 12 },
+  loginButtonText: { color: COLORS.black, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  registerButton: { backgroundColor: 'transparent', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 12, width: '100%', maxWidth: 320, borderWidth: 2, borderColor: COLORS.gold },
+  registerButtonText: { color: COLORS.gold, fontSize: 18, fontWeight: '700', textAlign: 'center' },
 });
