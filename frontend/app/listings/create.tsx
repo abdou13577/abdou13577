@@ -282,6 +282,19 @@ export default function CreateListingScreen() {
             {images.map((image, index) => (
               <View key={index} style={styles.imageWrapper}>
                 <Image source={{ uri: image }} style={styles.imagePreview} />
+                {index === 0 && <View style={styles.mainImageBadge}><Text style={styles.mainImageText}>Hauptbild</Text></View>}
+                <View style={styles.imageControls}>
+                  {index > 0 && (
+                    <TouchableOpacity style={styles.imageControlButton} onPress={() => moveImageUp(index)}>
+                      <Ionicons name="arrow-up" size={18} color={COLORS.black} />
+                    </TouchableOpacity>
+                  )}
+                  {index < images.length - 1 && (
+                    <TouchableOpacity style={styles.imageControlButton} onPress={() => moveImageDown(index)}>
+                      <Ionicons name="arrow-down" size={18} color={COLORS.black} />
+                    </TouchableOpacity>
+                  )}
+                </View>
                 <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
                   <Ionicons name="close-circle" size={24} color={COLORS.red} />
                 </TouchableOpacity>
