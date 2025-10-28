@@ -431,6 +431,24 @@ async def get_received_offers(current_user: dict = Depends(get_current_user)):
         result.append({**{k: v for k, v in offer.items() if k != '_id'}, "buyer_name": buyer['name'] if buyer else "Gelöschter Benutzer", "listing_title": listing['title'] if listing else "Gelöschte Anzeige"})
     return result
 
+@api_router.get("/offers/my")
+async def get_my_offers(current_user: dict = Depends(get_current_user)):
+    """Get all offers received by the current user (as seller)"""
+    offers = await db.offers.find({"seller_id": current_user['user_id']}).sort('created_at', -1).to_list(100)
+    result = []
+    for offer in offers:
+        buyer = await db.users.find_one({"id": offer['buyer_id']})
+        listing = await db.listings.find_one({"id": offer['listing_id']})
+        listing_image = listing['images'][0] if listing and listing.get('images') else None
+        result.append({
+            **{k: v for k, v in offer.items() if k != '_id'}, 
+            "buyer_name": buyer['name'] if buyer else "Gelöschter Benutzer", 
+            "listing_title": listing['title'] if listing else "Gelöschte Anzeige",
+            "listing_image": listing_image,
+            "original_price": listing['price'] if listing else 0
+        })
+    return result
+
 @api_router.get("/offers/sent")
 async def get_sent_offers(current_user: dict = Depends(get_current_user)):
     offers = await db.offers.find({"buyer_id": current_user['user_id']}).sort('created_at', -1).to_list(100)
