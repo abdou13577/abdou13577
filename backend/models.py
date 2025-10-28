@@ -83,6 +83,7 @@ class Message(BaseModel):
     listing_id: str
     content: str
     message_type: MessageType
+    read: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Offer Models
