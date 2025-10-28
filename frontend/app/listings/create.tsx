@@ -105,7 +105,17 @@ export default function CreateListingScreen() {
     }
     setLoading(true);
     try {
-      await api.post('/listings', { title, description, price: parseFloat(price), category: selectedCategory.id, images, video: null, category_fields: categoryFields });
+      await api.post('/listings', { 
+        title, 
+        description, 
+        price: parseFloat(price.replace(/,/g, '')), // إزالة الفواصل قبل الإرسال
+        category: selectedCategory.id, 
+        images, 
+        videos, 
+        category_fields: categoryFields,
+        negotiable,
+        location: location || undefined,
+      });
       Alert.alert('Erfolg!', 'Anzeige erfolgreich erstellt', [{ text: 'OK', onPress: () => router.back() }]);
     } catch (error: any) {
       Alert.alert('Fehler', error.response?.data?.detail || 'Anzeigenerstellung fehlgeschlagen');
