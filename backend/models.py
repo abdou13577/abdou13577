@@ -152,3 +152,10 @@ class Category(BaseModel):
     name_ar: str
     icon: str
     fields: List[Dict[str, Any]] = []  # حقول مخصصة لكل فئة
+
+# Favorite Models
+class Favorite(BaseModel):
+    id: str
+    user_id: str
+    listing_id: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
