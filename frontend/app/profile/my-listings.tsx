@@ -77,6 +77,12 @@ export default function MyListingsScreen() {
       </View>
       <View style={styles.actions}>
         <TouchableOpacity 
+          style={styles.editButton} 
+          onPress={() => router.push(`/listings/edit-${item.id}` as any)}
+        >
+          <Ionicons name="create" size={22} color={COLORS.gold} />
+        </TouchableOpacity>
+        <TouchableOpacity 
           style={styles.deleteButton} 
           onPress={() => {
             Alert.alert(
@@ -89,7 +95,7 @@ export default function MyListingsScreen() {
             );
           }}
         >
-          <Ionicons name="trash" size={24} color={COLORS.red} />
+          <Ionicons name="trash" size={22} color={COLORS.red} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
