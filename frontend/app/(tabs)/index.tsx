@@ -75,7 +75,7 @@ export default function HomeScreen() {
   const renderListing = ({ item }: { item: Listing }) => (
     <TouchableOpacity style={styles.listingCard} onPress={() => router.push(`/listings/${item.id}` as any)}>
       {item.images && item.images.length > 0 ? (
-        <Image source={{ uri: item.images[0] }} style={styles.listingImage} resizeMode="cover" />
+        <Image source={{ uri: item.images[0] }} style={styles.listingImage} resizeMode="contain" />
       ) : (
         <View style={[styles.listingImage, styles.noImage]}>
           <Ionicons name="image-outline" size={40} color={COLORS.textMuted} />
@@ -83,7 +83,7 @@ export default function HomeScreen() {
       )}
       <View style={styles.listingInfo}>
         <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.listingPrice}>€{item.price}</Text>
+        <Text style={styles.listingPrice}>€{item.price.toLocaleString('de-DE')}</Text>
         <View style={styles.listingMeta}>
           <Ionicons name="eye-outline" size={14} color={COLORS.textMuted} />
           <Text style={styles.listingViews}>{item.views}</Text>
