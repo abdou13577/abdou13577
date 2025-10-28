@@ -75,6 +75,11 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Meine Anzeigen</Text>
             <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/favorites' as any)}>
+            <Ionicons name="heart" size={24} color={COLORS.red} />
+            <Text style={styles.menuText}>Meine Favoriten</Text>
+            <Ionicons name="chevron-forward" size={24} color={COLORS.textMuted} />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/offers' as any)}>
             <Ionicons name="pricetag" size={24} color={COLORS.gold} />
             <Text style={styles.menuText}>Preisangebote</Text>
