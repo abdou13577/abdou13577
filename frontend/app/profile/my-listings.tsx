@@ -233,9 +233,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 12,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editButton: {
+    padding: 10,
+    backgroundColor: COLORS.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.gold,
   },
   deleteButton: {
-    padding: 8,
+    padding: 10,
   },
   emptyContainer: {
     flex: 1,
