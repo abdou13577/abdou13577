@@ -350,6 +350,7 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
         "listing_id": message_data.listing_id,
         "content": message_data.content,
         "message_type": message_data.message_type,
+        "read": False,
         "created_at": datetime.utcnow()
     }
     await db.messages.insert_one(message_dict)
