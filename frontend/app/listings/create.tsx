@@ -21,6 +21,7 @@ export default function CreateListingScreen() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryFields, setCategoryFields] = useState<Record<string, any>>({});
   const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
