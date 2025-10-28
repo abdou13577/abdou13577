@@ -107,9 +107,26 @@ export default function ListingDetailScreen() {
         </View>
       </ScrollView>
 
-      {user?.id !== listing.seller_id && (
+      {(!user || user?.id !== listing.seller_id) && (
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.contactButton} onPress={() => router.push(`/messages/${listing.id}/${listing.seller_id}` as any)}>
+          <TouchableOpacity 
+            style={styles.contactButton} 
+            onPress={() => {
+              if (!user) {
+                Alert.alert(
+                  'Anmelden erforderlich',
+                  'Sie müssen sich anmelden, um den Verkäufer zu kontaktieren.',
+                  [
+                    { text: 'Abbrechen', style: 'cancel' },
+                    { text: 'Anmelden', onPress: () => router.push('/auth/login') },
+                    { text: 'Registrieren', onPress: () => router.push('/auth/register') }
+                  ]
+                );
+              } else {
+                router.push(`/messages/${listing.id}/${listing.seller_id}` as any);
+              }
+            }}
+          >
             <Ionicons name="chatbubble" size={20} color={COLORS.black} />
             <Text style={styles.contactButtonText}>Nachricht senden</Text>
           </TouchableOpacity>
