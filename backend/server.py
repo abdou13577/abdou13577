@@ -378,6 +378,14 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
                 "unread": 0
             }
     return list(conversations.values())
+@api_router.get("/messages/unread-count")
+async def get_unread_count(current_user: dict = Depends(get_current_user)):
+    """Get count of unread messages"""
+    count = await db.messages.count_documents({
+        "to_user_id": current_user['user_id'],
+        "read": False
+    })
+    return {"count": count}
 
 @api_router.get("/messages/{listing_id}/{other_user_id}")
 async def get_conversation_messages(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
