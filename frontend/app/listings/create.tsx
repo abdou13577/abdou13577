@@ -133,7 +133,12 @@ export default function CreateListingScreen() {
       return (
         <View key={field.name} style={styles.fieldContainer}>
           <Text style={styles.fieldLabel}>{field.label}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={true}
+            scrollEnabled={true}
+            contentContainerStyle={{ paddingRight: 16 }}
+          >
             {models.map((option: string) => (
               <TouchableOpacity key={option} style={[styles.optionChip, value === option && styles.optionChipSelected]} onPress={() => setCategoryFields({ ...categoryFields, [field.name]: option })}>
                 <Text style={[styles.optionText, value === option && styles.optionTextSelected]}>{option}</Text>
