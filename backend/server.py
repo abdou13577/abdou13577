@@ -425,6 +425,7 @@ async def create_offer(offer_data: OfferCreate, current_user: dict = Depends(get
         "listing_id": offer_data.listing_id,
         "content": auto_message,
         "message_type": MessageType.TEXT,
+        "read": False,
         "created_at": datetime.utcnow()
     }
     await db.messages.insert_one(message_dict)
