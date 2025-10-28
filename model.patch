@@ -1,50 +1,90 @@
-diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
-index 3c2bcd5..f8b29e5 100644
---- a/frontend/constants/colors.ts
-+++ b/frontend/constants/colors.ts
-@@ -1,25 +1,26 @@
--// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
-+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
- export const COLORS = {
--  // Primary colors (German flag)
--  black: '#000000',
--  red: '#DD0000',
--  gold: '#FFCE00',
-+  // الخلفيات
-+  background: '#121212',        // أسود ناعم بدلاً من #000000
-+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
-   
--  // Background
--  background: '#0A0A0A',
--  cardBackground: '#1A1A1A',
-+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
-+  black: '#1A1A1A',            // أسود ناعم
-+  red: '#E53935',              // أحمر أقل حدة
-+  gold: '#FFB300',             // ذهبي دافئ
-   
--  // Text
--  textPrimary: '#FFFFFF',
--  textSecondary: '#B0B0B0',
--  textMuted: '#707070',
-+  // النصوص
-+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
-+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
-+  textMuted: '#757575',        // رمادي داكن للنص الخافت
-   
--  // Accents
--  primary: '#DD0000',
--  secondary: '#FFCE00',
--  success: '#00DD00',
-+  // الحدود والخطوط
-+  border: '#2A2A2A',           // حدود ناعمة
-+  borderLight: '#3A3A3A',      // حدود أفتح
-   
--  // Borders
--  border: '#2A2A2A',
--  borderLight: '#3A3A3A',
-+  // ألوان إضافية
-+  success: '#4CAF50',          // أخضر للنجاح
-+  error: '#EF5350',            // أحمر للأخطاء
-+  warning: '#FFA726',          // برتقالي للتحذيرات
-+  info: '#42A5F5',             // أزرق للمعلومات
- };
+diff --git a/backend/server.py b/backend/server.py
+index 9b7cf55..d280e92 100644
+--- a/backend/server.py
++++ b/backend/server.py
+@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
+         update_data['phone_enabled'] = phone_enabled
+     if update_data:
+         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+-    return {"message": "Profil aktualisiert"}
++    user = await db.users.find_one({"id": current_user['user_id']})
++    if not user:
++        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
++    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
++
++# Profile management endpoints
++@api_router.put("/users/profile")
++async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
++    update_data = {}
++    if 'name' in profile_data:
++        update_data['name'] = profile_data['name']
++    if 'profile_image' in profile_data:
++        update_data['profile_image'] = profile_data['profile_image']
++    if 'phone_enabled' in profile_data:
++        update_data['phone_enabled'] = profile_data['phone_enabled']
++    
++    if update_data:
++        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
++    
++    user = await db.users.find_one({"id": current_user['user_id']})
++    if not user:
++        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
++    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+ 
+ # ============= CATEGORIES =============
+ @api_router.get("/categories")
+diff --git a/model.patch b/model.patch
+index d10da00..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,50 +0,0 @@
+-diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
+-index 3c2bcd5..f8b29e5 100644
+---- a/frontend/constants/colors.ts
+-+++ b/frontend/constants/colors.ts
+-@@ -1,25 +1,26 @@
+--// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
+-+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
+- export const COLORS = {
+--  // Primary colors (German flag)
+--  black: '#000000',
+--  red: '#DD0000',
+--  gold: '#FFCE00',
+-+  // الخلفيات
+-+  background: '#121212',        // أسود ناعم بدلاً من #000000
+-+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
+-   
+--  // Background
+--  background: '#0A0A0A',
+--  cardBackground: '#1A1A1A',
+-+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
+-+  black: '#1A1A1A',            // أسود ناعم
+-+  red: '#E53935',              // أحمر أقل حدة
+-+  gold: '#FFB300',             // ذهبي دافئ
+-   
+--  // Text
+--  textPrimary: '#FFFFFF',
+--  textSecondary: '#B0B0B0',
+--  textMuted: '#707070',
+-+  // النصوص
+-+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
+-+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
+-+  textMuted: '#757575',        // رمادي داكن للنص الخافت
+-   
+--  // Accents
+--  primary: '#DD0000',
+--  secondary: '#FFCE00',
+--  success: '#00DD00',
+-+  // الحدود والخطوط
+-+  border: '#2A2A2A',           // حدود ناعمة
+-+  borderLight: '#3A3A3A',      // حدود أفتح
+-   
+--  // Borders
+--  border: '#2A2A2A',
+--  borderLight: '#3A3A3A',
+-+  // ألوان إضافية
+-+  success: '#4CAF50',          // أخضر للنجاح
+-+  error: '#EF5350',            // أحمر للأخطاء
+-+  warning: '#FFA726',          // برتقالي للتحذيرات
+-+  info: '#42A5F5',             // أزرق للمعلومات
+- };
