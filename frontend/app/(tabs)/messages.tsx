@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import api from '../../services/api';
+import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../constants/colors';
 
 interface Conversation {
@@ -19,11 +20,16 @@ interface Conversation {
 
 export default function MessagesScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadConversations = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     try {
       const response = await api.get('/messages/conversations');
       setConversations(response.data);
@@ -37,7 +43,7 @@ export default function MessagesScreen() {
 
   useEffect(() => {
     loadConversations();
-  }, []);
+  }, [user]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -64,6 +70,35 @@ export default function MessagesScreen() {
       {item.listing_image && <Image source={{ uri: item.listing_image }} style={styles.listingThumbnail} />}
     </TouchableOpacity>
   );
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Nachrichten</Text>
+        </View>
+        <View style={styles.notLoggedInContainer}>
+          <Ionicons name="lock-closed" size={80} color={COLORS.textMuted} />
+          <Text style={styles.notLoggedInTitle}>Anmelden erforderlich</Text>
+          <Text style={styles.notLoggedInText}>
+            Sie müssen sich anmelden, um Nachrichten anzuzeigen und mit Verkäufern zu kommunizieren.
+          </Text>
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={() => router.push('/auth/login')}
+          >
+            <Text style={styles.loginButtonText}>Jetzt anmelden</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.registerButton} 
+            onPress={() => router.push('/auth/register')}
+          >
+            <Text style={styles.registerButtonText}>Konto erstellen</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
