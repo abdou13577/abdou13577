@@ -471,6 +471,51 @@ async def get_user_reviews(user_id: str):
     reviews = await db.reviews.find({"reviewed_user_id": user_id}).sort('created_at', -1).to_list(100)
     return [Review(**{k: v for k, v in review.items() if k != '_id'}) for review in reviews]
 
+# ============= FAVORITES =============
+@api_router.post("/favorites/{listing_id}")
+async def add_to_favorites(listing_id: str, current_user: dict = Depends(get_current_user)):
+    # Check if listing exists
+    listing = await db.listings.find_one({"id": listing_id})
+    if not listing:
+        raise HTTPException(status_code=404, detail="Anzeige nicht gefunden")
+    
+    # Check if already favorited
+    existing = await db.favorites.find_one({"user_id": current_user['user_id'], "listing_id": listing_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="Bereits zu Favoriten hinzugefügt")
+    
+    favorite_id = str(uuid.uuid4())
+    favorite_dict = {
+        "id": favorite_id,
+        "user_id": current_user['user_id'],
+        "listing_id": listing_id,
+        "created_at": datetime.utcnow()
+    }
+    await db.favorites.insert_one(favorite_dict)
+    return {"message": "Zu Favoriten hinzugefügt"}
+
+@api_router.delete("/favorites/{listing_id}")
+async def remove_from_favorites(listing_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.favorites.delete_one({"user_id": current_user['user_id'], "listing_id": listing_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Favorit nicht gefunden")
+    return {"message": "Aus Favoriten entfernt"}
+
+@api_router.get("/favorites")
+async def get_favorites(current_user: dict = Depends(get_current_user)):
+    favorites = await db.favorites.find({"user_id": current_user['user_id']}).sort('created_at', -1).to_list(100)
+    result = []
+    for fav in favorites:
+        listing = await db.listings.find_one({"id": fav['listing_id']})
+        if listing:
+            result.append(Listing(**{k: v for k, v in listing.items() if k != '_id'}))
+    return result
+
+@api_router.get("/favorites/check/{listing_id}")
+async def check_favorite(listing_id: str, current_user: dict = Depends(get_current_user)):
+    favorite = await db.favorites.find_one({"user_id": current_user['user_id'], "listing_id": listing_id})
+    return {"is_favorited": favorite is not None}
+
 # ============= SUPPORT =============
 @api_router.post("/support")
 async def create_support_ticket(ticket_data: SupportTicketCreate, current_user: dict = Depends(get_current_user)):
