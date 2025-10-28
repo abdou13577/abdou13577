@@ -33,23 +33,23 @@ export default function Login() {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="COLORS.gold" />
         </TouchableOpacity>
         <View style={styles.header}>
-          <Ionicons name="log-in" size={60} color="#007AFF" />
+          <Ionicons name="log-in" size={60} color="COLORS.gold" />
           <Text style={styles.title}>Anmelden</Text>
           <Text style={styles.subtitle}>Willkommen zurück!</Text>
         </View>
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Ionicons name="mail" size={20} color="#8E8E93" style={styles.inputIcon} />
+            <Ionicons name="mail" size={20} color="COLORS.textMuted" style={styles.inputIcon} />
             <TextInput style={styles.input} placeholder="E-Mail" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
           </View>
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed" size={20} color="#8E8E93" style={styles.inputIcon} />
+            <Ionicons name="lock-closed" size={20} color="COLORS.textMuted" style={styles.inputIcon} />
             <TextInput style={styles.input} placeholder="Passwort" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#8E8E93" />
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="COLORS.textMuted" />
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={[styles.loginButton, loading && styles.loginButtonDisabled]} onPress={handleLogin} disabled={loading}>
@@ -65,21 +65,21 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  container: { flex: 1, backgroundColor: 'COLORS.background' },
   scrollContent: { flexGrow: 1, padding: 24 },
   backButton: { marginBottom: 24 },
   header: { alignItems: 'center', marginBottom: 48 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#1C1C1E', marginTop: 16 },
-  subtitle: { fontSize: 16, color: '#8E8E93', marginTop: 8 },
+  title: { fontSize: 32, fontWeight: 'bold', color: 'COLORS.textPrimary', marginTop: 16 },
+  subtitle: { fontSize: 16, color: 'COLORS.textMuted', marginTop: 8 },
   form: { width: '100%' },
   inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E5E5EA' },
   inputIcon: { marginRight: 12 },
-  input: { flex: 1, paddingVertical: 16, fontSize: 16, color: '#1C1C1E' },
+  input: { flex: 1, paddingVertical: 16, fontSize: 16, color: 'COLORS.textPrimary' },
   eyeIcon: { padding: 4 },
-  loginButton: { backgroundColor: '#007AFF', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
+  loginButton: { backgroundColor: 'COLORS.gold', paddingVertical: 16, borderRadius: 12, marginTop: 8 },
   loginButtonDisabled: { backgroundColor: '#B0D5FF' },
   loginButtonText: { color: '#FFFFFF', fontSize: 18, fontWeight: '600', textAlign: 'center' },
   registerLink: { marginTop: 24, alignItems: 'center' },
-  registerLinkText: { fontSize: 16, color: '#8E8E93' },
-  registerLinkBold: { color: '#007AFF', fontWeight: '600' },
+  registerLinkText: { fontSize: 16, color: 'COLORS.textMuted' },
+  registerLinkBold: { color: 'COLORS.gold', fontWeight: '600' },
 });
