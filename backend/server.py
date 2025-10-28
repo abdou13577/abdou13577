@@ -53,6 +53,16 @@ async def get_current_user(authorization: Optional[str] = Header(None)) -> dict:
     token = authorization.split(' ')[1]
     return decode_token(token)
 
+async def get_current_user_optional(authorization: Optional[str] = Header(None)) -> Optional[dict]:
+    """Optional authentication - returns None if not authenticated"""
+    if not authorization or not authorization.startswith('Bearer '):
+        return None
+    try:
+        token = authorization.split(' ')[1]
+        return decode_token(token)
+    except:
+        return None
+
 # ============= AUTH =============
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
