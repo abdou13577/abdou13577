@@ -83,8 +83,18 @@ export default function HomeScreen() {
       )}
       <View style={styles.listingInfo}>
         <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.listingPrice}>€{item.price.toLocaleString('de-DE')}</Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.listingPrice}>€{item.price.toLocaleString('de-DE')}</Text>
+          {item.negotiable && <Text style={styles.vbBadge}>VB</Text>}
+        </View>
         <View style={styles.listingMeta}>
+          {item.location && (
+            <>
+              <Ionicons name="location" size={14} color={COLORS.red} />
+              <Text style={styles.listingLocation}>{item.location}</Text>
+            </>
+          )}
+          <View style={{ width: 8 }} />
           <Ionicons name="eye-outline" size={14} color={COLORS.textMuted} />
           <Text style={styles.listingViews}>{item.views}</Text>
         </View>
