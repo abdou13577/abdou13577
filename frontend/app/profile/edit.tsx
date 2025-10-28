@@ -26,12 +26,13 @@ export default function EditProfileScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5,
+      quality: 0.3,  // تخفيض الجودة لتقليل الحجم
       base64: true,
     });
 
     if (!result.canceled && result.assets[0].base64) {
       const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      console.log('Image size:', base64Image.length);
       setProfileImage(base64Image);
     }
   };
@@ -44,17 +45,20 @@ export default function EditProfileScreen() {
 
     setLoading(true);
     try {
+      console.log('Sending profile update...');
       const response = await api.put('/users/profile', {
         name: name.trim(),
-        profile_image: profileImage,
+        profile_image: profileImage || undefined,
       });
       
+      console.log('Profile updated successfully');
       setUser(response.data);
       Alert.alert('Erfolg', 'Profil erfolgreich aktualisiert', [
         { text: 'OK', onPress: () => router.back() }
       ]);
     } catch (error: any) {
-      Alert.alert('Fehler', error.response?.data?.detail || 'Profil konnte nicht aktualisiert werden');
+      console.error('Profile update error:', error);
+      Alert.alert('Fehler', error.response?.data?.detail || error.message || 'Profil konnte nicht aktualisiert werden');
     } finally {
       setLoading(false);
     }
