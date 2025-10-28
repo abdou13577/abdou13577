@@ -60,9 +60,13 @@ class Listing(BaseModel):
     price: float
     category: str
     images: List[str] = []
-    video: Optional[str] = None
+    videos: List[str] = []  # إضافة دعم الفيديوهات
     category_fields: Dict[str, Any] = {}
     views: int = 0
+    negotiable: bool = False  # قابل للتفاوض
+    location: Optional[str] = None  # الموقع (المدينة)
+    latitude: Optional[float] = None  # خط العرض
+    longitude: Optional[float] = None  # خط الطول
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Message Models
