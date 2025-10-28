@@ -1,11 +1,29 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../constants/colors';
 
 export default function AddScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
+
+  const handleCreateListing = () => {
+    if (!user) {
+      Alert.alert(
+        'Anmelden erforderlich',
+        'Sie müssen sich anmelden, um eine Anzeige zu erstellen.',
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Anmelden', onPress: () => router.push('/auth/login') },
+          { text: 'Registrieren', onPress: () => router.push('/auth/register') }
+        ]
+      );
+    } else {
+      router.push('/listings/create' as any);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -20,7 +38,7 @@ export default function AddScreen() {
           <Text style={styles.infoText}>Verkaufen Sie Ihre Produkte einfach. Wählen Sie eine passende Kategorie für Ihre Anzeige.</Text>
         </View>
 
-        <TouchableOpacity style={styles.createButton} onPress={() => router.push('/listings/create' as any)}>
+        <TouchableOpacity style={styles.createButton} onPress={handleCreateListing}>
           <Ionicons name="add-circle" size={24} color={COLORS.black} />
           <Text style={styles.createButtonText}>Neue Anzeige erstellen</Text>
         </TouchableOpacity>
