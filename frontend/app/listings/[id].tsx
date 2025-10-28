@@ -16,10 +16,15 @@ export default function ListingDetailScreen() {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     loadListing();
-  }, [id]);
+    if (user) {
+      checkFavorite();
+    }
+  }, [id, user]);
 
   const loadListing = async () => {
     try {
@@ -30,6 +35,46 @@ export default function ListingDetailScreen() {
       router.back();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkFavorite = async () => {
+    try {
+      const response = await api.get(`/favorites/check/${id}`);
+      setIsFavorited(response.data.is_favorited);
+    } catch (error) {
+      console.error('Error checking favorite:', error);
+    }
+  };
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      Alert.alert(
+        'Anmelden erforderlich',
+        'Sie müssen sich anmelden, um Favoriten zu speichern.',
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Anmelden', onPress: () => router.push('/auth/login') },
+        ]
+      );
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorited) {
+        await api.delete(`/favorites/${id}`);
+        setIsFavorited(false);
+        Alert.alert('Erfolg', 'Aus Favoriten entfernt');
+      } else {
+        await api.post(`/favorites/${id}`);
+        setIsFavorited(true);
+        Alert.alert('Erfolg', 'Zu Favoriten hinzugefügt');
+      }
+    } catch (error: any) {
+      Alert.alert('Fehler', error.response?.data?.detail || 'Aktion fehlgeschlagen');
+    } finally {
+      setFavoriteLoading(false);
     }
   };
 
