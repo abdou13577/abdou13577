@@ -28,7 +28,7 @@ export default function ConversationScreen() {
 
   useEffect(() => {
     loadMessages();
-    const interval = setInterval(loadMessages, 5000); // تحديث كل 5 ثواني فقط
+    const interval = setInterval(loadMessages, 10000); // تحديث كل 10 ثوان (أقل ضغط)
     return () => clearInterval(interval);
   }, []);
 
