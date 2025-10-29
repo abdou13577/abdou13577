@@ -76,6 +76,8 @@ class MessageCreate(BaseModel):
     listing_id: str
     content: str
     message_type: MessageType = MessageType.TEXT
+    images: Optional[List[str]] = []  # List of base64 images (max 5)
+    audio: Optional[str] = None  # base64 audio
 
 class Message(BaseModel):
     id: str
@@ -84,6 +86,8 @@ class Message(BaseModel):
     listing_id: str
     content: str
     message_type: MessageType
+    images: Optional[List[str]] = []
+    audio: Optional[str] = None
     read: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
