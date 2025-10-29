@@ -19,6 +19,7 @@ export default function ConversationScreen() {
   const router = useRouter();
   const { listingId, otherUserId } = useLocalSearchParams();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
