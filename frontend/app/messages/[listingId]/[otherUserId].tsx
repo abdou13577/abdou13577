@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import { Audio } from 'expo-av';
 import api from '../../../services/api';
 import { useAuthStore } from '../../../store/authStore';
 import { COLORS } from '../../../constants/colors';
@@ -13,6 +15,9 @@ interface Message {
   from_user_id: string;
   content: string;
   created_at: string;
+  message_type?: string;
+  images?: string[];
+  audio?: string;
 }
 
 export default function ConversationScreen() {
