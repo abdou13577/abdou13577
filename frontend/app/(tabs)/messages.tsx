@@ -45,7 +45,7 @@ export default function MessagesScreen() {
   useEffect(() => {
     if (user) {
       loadConversations();
-      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
+      const interval = setInterval(loadConversations, 5000); // تحديث كل 5 ثوان (أقل ضغط)
       return () => clearInterval(interval);
     }
   }, [user]);
