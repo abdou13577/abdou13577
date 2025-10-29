@@ -364,6 +364,8 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
         "listing_id": message_data.listing_id,
         "content": message_data.content,
         "message_type": message_data.message_type,
+        "images": message_data.images or [],
+        "audio": message_data.audio,
         "read": False,
         "created_at": datetime.utcnow()
     }
