@@ -502,4 +502,43 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.textMuted,
     opacity: 0.5,
   },
+  imagePreviewContainer: {
+    backgroundColor: COLORS.cardBackground,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  imagePreviewItem: {
+    position: 'relative',
+    marginRight: 8,
+  },
+  imagePreview: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+  },
+  mediaButtons: {
+    flexDirection: 'column',
+    marginRight: 8,
+  },
+  mediaButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  recordingButton: {
+    backgroundColor: COLORS.red,
+  },
 });
