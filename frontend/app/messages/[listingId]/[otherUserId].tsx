@@ -34,14 +34,18 @@ export default function ConversationScreen() {
     try {
       const response = await api.get(`/messages/${listingId}/${otherUserId}`);
       setMessages(response.data);
-      setLoading(false);
       
-      // Mark messages as read
-      await api.post(`/messages/mark-read/${listingId}/${otherUserId}`);
+      // Mark messages as read - don't fail if error
+      try {
+        await api.post(`/messages/mark-read/${listingId}/${otherUserId}`);
+      } catch (err) {
+        console.log('Could not mark as read:', err);
+      }
+      
+      setLoading(false);
     } catch (error: any) {
       console.error('Error loading messages:', error);
       if (error.response?.status === 404) {
-        // لا توجد محادثة بعد - هذا عادي
         setMessages([]);
       }
       setLoading(false);
