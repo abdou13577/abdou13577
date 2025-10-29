@@ -50,14 +50,14 @@ export default function Login() {
         </View>
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Ionicons name="mail" size={20} color="COLORS.textMuted" style={styles.inputIcon} />
-            <TextInput style={styles.input} placeholder="E-Mail" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+            <Ionicons name="mail" size={20} color={COLORS.textMuted} style={styles.inputIcon} />
+            <TextInput style={styles.input} placeholder="E-Mail" placeholderTextColor={COLORS.textMuted} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
           </View>
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed" size={20} color="COLORS.textMuted" style={styles.inputIcon} />
-            <TextInput style={styles.input} placeholder="Passwort" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} />
+            <Ionicons name="lock-closed" size={20} color={COLORS.textMuted} style={styles.inputIcon} />
+            <TextInput style={styles.input} placeholder="Passwort" placeholderTextColor={COLORS.textMuted} value={password} onChangeText={setPassword} secureTextEntry={!showPassword} />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="COLORS.textMuted" />
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color={COLORS.textMuted} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={[styles.loginButton, loading && styles.loginButtonDisabled]} onPress={handleLogin} disabled={loading}>
