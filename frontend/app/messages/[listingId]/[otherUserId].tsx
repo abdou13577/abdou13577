@@ -135,7 +135,7 @@ export default function ConversationScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, 20) + 20 }]}>
         <TextInput
           style={styles.input}
           placeholder="Nachricht schreiben..."
