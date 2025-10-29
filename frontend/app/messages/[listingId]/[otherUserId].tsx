@@ -599,4 +599,25 @@ const styles = StyleSheet.create({
   recordingButton: {
     backgroundColor: COLORS.red,
   },
+  messageImages: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+  },
+  messageImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    marginRight: 4,
+    marginBottom: 4,
+  },
+  audioMessage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  audioText: {
+    marginLeft: 8,
+    fontSize: 14,
+  },
 });
