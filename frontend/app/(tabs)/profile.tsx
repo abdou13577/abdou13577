@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
@@ -9,11 +9,20 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
-  const handleLogout = () => {
-    Alert.alert('Abmelden', 'Möchten Sie sich wirklich abmelden?', [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Abmelden', style: 'destructive', onPress: async () => { await logout(); router.replace('/'); } },
-    ]);
+  const handleLogout = async () => {
+    if (Platform.OS === 'web') {
+      // For web, use confirm dialog
+      if (window.confirm('Möchten Sie sich wirklich abmelden?')) {
+        await logout();
+        router.replace('/');
+      }
+    } else {
+      // For mobile, use Alert
+      Alert.alert('Abmelden', 'Möchten Sie sich wirklich abmelden?', [
+        { text: 'Abbrechen', style: 'cancel' },
+        { text: 'Abmelden', style: 'destructive', onPress: async () => { await logout(); router.replace('/'); } },
+      ]);
+    }
   };
 
   if (!user) {
