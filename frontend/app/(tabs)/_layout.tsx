@@ -21,9 +21,14 @@ export default function TabsLayout() {
   const loadUnreadCount = async () => {
     try {
       const response = await api.get('/messages/unread-count');
-      setUnreadCount(response.data.count);
+      if (response.data && typeof response.data.count === 'number') {
+        setUnreadCount(response.data.count);
+      } else {
+        setUnreadCount(0);
+      }
     } catch (error) {
-      console.error('Error loading unread count:', error);
+      // تجاهل الخطأ - المستخدم قد لا يكون مسجل دخول
+      setUnreadCount(0);
     }
   };
 
