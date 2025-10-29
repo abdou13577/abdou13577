@@ -52,7 +52,10 @@ export default function MessagesScreen() {
   };
 
   const renderConversation = ({ item }: { item: Conversation }) => (
-    <TouchableOpacity style={styles.conversationCard} onPress={() => router.push(`/messages/${item.listing_id}/${item.other_user_id}` as any)}>
+    <TouchableOpacity 
+      style={[styles.conversationCard, item.unread_count > 0 && styles.conversationCardUnread]} 
+      onPress={() => router.push(`/messages/${item.listing_id}/${item.other_user_id}` as any)}
+    >
       {item.other_user_image ? (
         <Image source={{ uri: item.other_user_image }} style={styles.avatar} />
       ) : (
@@ -62,11 +65,18 @@ export default function MessagesScreen() {
       )}
       <View style={styles.conversationContent}>
         <View style={styles.conversationHeader}>
-          <Text style={styles.userName} numberOfLines={1}>{item.other_user_name}</Text>
-          <Text style={styles.timeText}>{format(new Date(item.last_message_time), 'HH:mm')}</Text>
+          <Text style={[styles.userName, item.unread_count > 0 && styles.userNameUnread]} numberOfLines={1}>{item.other_user_name}</Text>
+          <View style={styles.rightSection}>
+            <Text style={styles.timeText}>{format(new Date(item.last_message_time), 'HH:mm')}</Text>
+            {item.unread_count > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadText}>{item.unread_count > 99 ? '99+' : item.unread_count}</Text>
+              </View>
+            )}
+          </View>
         </View>
-        <Text style={styles.listingTitle} numberOfLines={1}>{item.listing_title}</Text>
-        <Text style={styles.lastMessage} numberOfLines={1}>{item.last_message}</Text>
+        <Text style={[styles.listingTitle, item.unread_count > 0 && styles.listingTitleUnread]} numberOfLines={1}>{item.listing_title}</Text>
+        <Text style={[styles.lastMessage, item.unread_count > 0 && styles.lastMessageUnread]} numberOfLines={1}>{item.last_message}</Text>
       </View>
       {item.listing_image && <Image source={{ uri: item.listing_image }} style={styles.listingThumbnail} />}
     </TouchableOpacity>
