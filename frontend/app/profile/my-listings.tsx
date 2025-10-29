@@ -78,7 +78,10 @@ export default function MyListingsScreen() {
       <View style={styles.actions}>
         <TouchableOpacity 
           style={styles.editButton} 
-          onPress={() => router.push(`/listings/${item.id}?edit=true` as any)}
+          onPress={() => {
+            // سيتم تنفيذ Edit mode لاحقاً
+            Alert.alert('قريباً', 'ميزة التعديل ستكون متاحة قريباً');
+          }}
         >
           <Ionicons name="create" size={22} color={COLORS.gold} />
         </TouchableOpacity>
