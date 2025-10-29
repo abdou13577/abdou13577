@@ -1,232 +1,237 @@
 diff --git a/model.patch b/model.patch
-index 2597230..e69de29 100644
+index 133866a..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,227 +0,0 @@
--diff --git a/frontend/app/(tabs)/messages.tsx b/frontend/app/(tabs)/messages.tsx
--index ac376ac..318c5b4 100644
----- a/frontend/app/(tabs)/messages.tsx
--+++ b/frontend/app/(tabs)/messages.tsx
--@@ -43,7 +43,21 @@ export default function MessagesScreen() {
--   };
-- 
--   useEffect(() => {
---    loadConversations();
--+    if (user) {
--+      loadConversations();
--+      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
--+      return () => clearInterval(interval);
--+    }
--+  }, [user]);
--+
--+  useEffect(() => {
--+    // Refresh when screen comes into focus
--+    const unsubscribe = router.subscribe(() => {
--+      if (user) {
--+        loadConversations();
--+      }
--+    });
--+    return () => unsubscribe?.();
--   }, [user]);
-- 
--   const onRefresh = () => {
+@@ -1,232 +0,0 @@
 -diff --git a/model.patch b/model.patch
--index add2911..e69de29 100644
+-index 2597230..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,195 +0,0 @@
---diff --git a/backend/server.py b/backend/server.py
---index 7514237..32681dc 100644
------ a/backend/server.py
---+++ b/backend/server.py
---@@ -381,6 +381,15 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
---         if conv_key not in conversations:
---             other_user = await db.users.find_one({"id": other_user_id})
---             listing = await db.listings.find_one({"id": msg['listing_id']})
---+            
---+            # Count unread messages from this user
---+            unread_count = await db.messages.count_documents({
---+                "listing_id": msg['listing_id'],
---+                "from_user_id": other_user_id,
---+                "to_user_id": user_id,
---+                "read": False
---+            })
---+            
---             conversations[conv_key] = {
---                 "other_user_id": other_user_id,
---                 "other_user_name": other_user['name'] if other_user else "Gelöschter Benutzer",
---@@ -390,7 +399,7 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
---                 "listing_image": listing['images'][0] if listing and listing.get('images') else None,
---                 "last_message": msg['content'][:50],
---                 "last_message_time": msg['created_at'],
----                "unread": 0
---+                "unread_count": unread_count
---             }
---     return list(conversations.values())
--- @api_router.get("/messages/unread-count")
+-@@ -1,227 +0,0 @@
+--diff --git a/frontend/app/(tabs)/messages.tsx b/frontend/app/(tabs)/messages.tsx
+--index ac376ac..318c5b4 100644
+----- a/frontend/app/(tabs)/messages.tsx
+--+++ b/frontend/app/(tabs)/messages.tsx
+--@@ -43,7 +43,21 @@ export default function MessagesScreen() {
+--   };
+-- 
+--   useEffect(() => {
+---    loadConversations();
+--+    if (user) {
+--+      loadConversations();
+--+      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
+--+      return () => clearInterval(interval);
+--+    }
+--+  }, [user]);
+--+
+--+  useEffect(() => {
+--+    // Refresh when screen comes into focus
+--+    const unsubscribe = router.subscribe(() => {
+--+      if (user) {
+--+        loadConversations();
+--+      }
+--+    });
+--+    return () => unsubscribe?.();
+--   }, [user]);
+-- 
+--   const onRefresh = () => {
 --diff --git a/model.patch b/model.patch
---index 7ed62fe..e69de29 100644
+--index add2911..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,161 +0,0 @@
----diff --git a/backend/models.py b/backend/models.py
----index 7e0ae6c..0fb5991 100644
------- a/backend/models.py
----+++ b/backend/models.py
----@@ -83,6 +83,7 @@ class Message(BaseModel):
----     listing_id: str
----     content: str
----     message_type: MessageType
----+    read: bool = False
----     created_at: datetime = Field(default_factory=datetime.utcnow)
---- 
---- # Offer Models
+--@@ -1,195 +0,0 @@
 ---diff --git a/backend/server.py b/backend/server.py
----index dc85811..60770f7 100644
+---index 7514237..32681dc 100644
 ------ a/backend/server.py
 ---+++ b/backend/server.py
----@@ -350,6 +350,7 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
----         "listing_id": message_data.listing_id,
----         "content": message_data.content,
----         "message_type": message_data.message_type,
----+        "read": False,
----         "created_at": datetime.utcnow()
----     }
----     await db.messages.insert_one(message_dict)
----@@ -378,6 +379,25 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
----                 "unread": 0
+---@@ -381,6 +381,15 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+---         if conv_key not in conversations:
+---             other_user = await db.users.find_one({"id": other_user_id})
+---             listing = await db.listings.find_one({"id": msg['listing_id']})
+---+            
+---+            # Count unread messages from this user
+---+            unread_count = await db.messages.count_documents({
+---+                "listing_id": msg['listing_id'],
+---+                "from_user_id": other_user_id,
+---+                "to_user_id": user_id,
+---+                "read": False
+---+            })
+---+            
+---             conversations[conv_key] = {
+---                 "other_user_id": other_user_id,
+---                 "other_user_name": other_user['name'] if other_user else "Gelöschter Benutzer",
+---@@ -390,7 +399,7 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+---                 "listing_image": listing['images'][0] if listing and listing.get('images') else None,
+---                 "last_message": msg['content'][:50],
+---                 "last_message_time": msg['created_at'],
+----                "unread": 0
+---+                "unread_count": unread_count
 ---             }
 ---     return list(conversations.values())
----+@api_router.get("/messages/unread-count")
----+async def get_unread_count(current_user: dict = Depends(get_current_user)):
----+    """Get count of unread messages"""
----+    count = await db.messages.count_documents({
----+        "to_user_id": current_user['user_id'],
----+        "read": False
----+    })
----+@api_router.put("/messages/mark-read/{listing_id}/{other_user_id}")
----+async def mark_messages_read(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
----+    """Mark messages as read when user opens a conversation"""
----+    user_id = current_user['user_id']
----+    await db.messages.update_many({
----+        "listing_id": listing_id,
----+        "from_user_id": other_user_id,
----+        "to_user_id": user_id,
----+        "read": False
----+    }, {"$set": {"read": True}})
----+    return {"message": "Messages marked as read"}
----+    return {"count": count}
---- 
---- @api_router.get("/messages/{listing_id}/{other_user_id}")
---- async def get_conversation_messages(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
----@@ -416,6 +436,7 @@ async def create_offer(offer_data: OfferCreate, current_user: dict = Depends(get
----         "listing_id": offer_data.listing_id,
----         "content": auto_message,
----         "message_type": MessageType.TEXT,
----+        "read": False,
----         "created_at": datetime.utcnow()
----     }
----     await db.messages.insert_one(message_dict)
----@@ -478,6 +499,7 @@ async def handle_offer_action(action_data: OfferAction, current_user: dict = Dep
----         "listing_id": offer['listing_id'],
----         "content": auto_message,
----         "message_type": MessageType.TEXT,
----+        "read": False,
----         "created_at": datetime.utcnow()
----     }
----     await db.messages.insert_one(message_dict)
+--- @api_router.get("/messages/unread-count")
 ---diff --git a/model.patch b/model.patch
----index 21668c2..e69de29 100644
+---index 7ed62fe..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,90 +0,0 @@
+---@@ -1,161 +0,0 @@
+----diff --git a/backend/models.py b/backend/models.py
+----index 7e0ae6c..0fb5991 100644
+------- a/backend/models.py
+----+++ b/backend/models.py
+----@@ -83,6 +83,7 @@ class Message(BaseModel):
+----     listing_id: str
+----     content: str
+----     message_type: MessageType
+----+    read: bool = False
+----     created_at: datetime = Field(default_factory=datetime.utcnow)
+---- 
+---- # Offer Models
 ----diff --git a/backend/server.py b/backend/server.py
-----index 9b7cf55..d280e92 100644
+----index dc85811..60770f7 100644
 ------- a/backend/server.py
 ----+++ b/backend/server.py
-----@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
-----         update_data['phone_enabled'] = phone_enabled
-----     if update_data:
-----         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
------    return {"message": "Profil aktualisiert"}
-----+    user = await db.users.find_one({"id": current_user['user_id']})
-----+    if not user:
-----+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
-----+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
-----+
-----+# Profile management endpoints
-----+@api_router.put("/users/profile")
-----+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
-----+    update_data = {}
-----+    if 'name' in profile_data:
-----+        update_data['name'] = profile_data['name']
-----+    if 'profile_image' in profile_data:
-----+        update_data['profile_image'] = profile_data['profile_image']
-----+    if 'phone_enabled' in profile_data:
-----+        update_data['phone_enabled'] = profile_data['phone_enabled']
-----+    
-----+    if update_data:
-----+        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
-----+    
-----+    user = await db.users.find_one({"id": current_user['user_id']})
-----+    if not user:
-----+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
-----+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+----@@ -350,6 +350,7 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
+----         "listing_id": message_data.listing_id,
+----         "content": message_data.content,
+----         "message_type": message_data.message_type,
+----+        "read": False,
+----         "created_at": datetime.utcnow()
+----     }
+----     await db.messages.insert_one(message_dict)
+----@@ -378,6 +379,25 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+----                 "unread": 0
+----             }
+----     return list(conversations.values())
+----+@api_router.get("/messages/unread-count")
+----+async def get_unread_count(current_user: dict = Depends(get_current_user)):
+----+    """Get count of unread messages"""
+----+    count = await db.messages.count_documents({
+----+        "to_user_id": current_user['user_id'],
+----+        "read": False
+----+    })
+----+@api_router.put("/messages/mark-read/{listing_id}/{other_user_id}")
+----+async def mark_messages_read(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
+----+    """Mark messages as read when user opens a conversation"""
+----+    user_id = current_user['user_id']
+----+    await db.messages.update_many({
+----+        "listing_id": listing_id,
+----+        "from_user_id": other_user_id,
+----+        "to_user_id": user_id,
+----+        "read": False
+----+    }, {"$set": {"read": True}})
+----+    return {"message": "Messages marked as read"}
+----+    return {"count": count}
 ---- 
----- # ============= CATEGORIES =============
----- @api_router.get("/categories")
+---- @api_router.get("/messages/{listing_id}/{other_user_id}")
+---- async def get_conversation_messages(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
+----@@ -416,6 +436,7 @@ async def create_offer(offer_data: OfferCreate, current_user: dict = Depends(get
+----         "listing_id": offer_data.listing_id,
+----         "content": auto_message,
+----         "message_type": MessageType.TEXT,
+----+        "read": False,
+----         "created_at": datetime.utcnow()
+----     }
+----     await db.messages.insert_one(message_dict)
+----@@ -478,6 +499,7 @@ async def handle_offer_action(action_data: OfferAction, current_user: dict = Dep
+----         "listing_id": offer['listing_id'],
+----         "content": auto_message,
+----         "message_type": MessageType.TEXT,
+----+        "read": False,
+----         "created_at": datetime.utcnow()
+----     }
+----     await db.messages.insert_one(message_dict)
 ----diff --git a/model.patch b/model.patch
-----index d10da00..e69de29 100644
+----index 21668c2..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,50 +0,0 @@
------diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
------index 3c2bcd5..f8b29e5 100644
--------- a/frontend/constants/colors.ts
------+++ b/frontend/constants/colors.ts
------@@ -1,25 +1,26 @@
-------// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
------+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
------ export const COLORS = {
-------  // Primary colors (German flag)
-------  black: '#000000',
-------  red: '#DD0000',
-------  gold: '#FFCE00',
------+  // الخلفيات
------+  background: '#121212',        // أسود ناعم بدلاً من #000000
------+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
------   
-------  // Background
-------  background: '#0A0A0A',
-------  cardBackground: '#1A1A1A',
------+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
------+  black: '#1A1A1A',            // أسود ناعم
------+  red: '#E53935',              // أحمر أقل حدة
------+  gold: '#FFB300',             // ذهبي دافئ
------   
-------  // Text
-------  textPrimary: '#FFFFFF',
-------  textSecondary: '#B0B0B0',
-------  textMuted: '#707070',
------+  // النصوص
------+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
------+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
------+  textMuted: '#757575',        // رمادي داكن للنص الخافت
------   
-------  // Accents
-------  primary: '#DD0000',
-------  secondary: '#FFCE00',
-------  success: '#00DD00',
------+  // الحدود والخطوط
------+  border: '#2A2A2A',           // حدود ناعمة
------+  borderLight: '#3A3A3A',      // حدود أفتح
------   
-------  // Borders
-------  border: '#2A2A2A',
-------  borderLight: '#3A3A3A',
------+  // ألوان إضافية
------+  success: '#4CAF50',          // أخضر للنجاح
------+  error: '#EF5350',            // أحمر للأخطاء
------+  warning: '#FFA726',          // برتقالي للتحذيرات
------+  info: '#42A5F5',             // أزرق للمعلومات
------ };
+----@@ -1,90 +0,0 @@
+-----diff --git a/backend/server.py b/backend/server.py
+-----index 9b7cf55..d280e92 100644
+-------- a/backend/server.py
+-----+++ b/backend/server.py
+-----@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
+-----         update_data['phone_enabled'] = phone_enabled
+-----     if update_data:
+-----         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+------    return {"message": "Profil aktualisiert"}
+-----+    user = await db.users.find_one({"id": current_user['user_id']})
+-----+    if not user:
+-----+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+-----+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+-----+
+-----+# Profile management endpoints
+-----+@api_router.put("/users/profile")
+-----+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
+-----+    update_data = {}
+-----+    if 'name' in profile_data:
+-----+        update_data['name'] = profile_data['name']
+-----+    if 'profile_image' in profile_data:
+-----+        update_data['profile_image'] = profile_data['profile_image']
+-----+    if 'phone_enabled' in profile_data:
+-----+        update_data['phone_enabled'] = profile_data['phone_enabled']
+-----+    
+-----+    if update_data:
+-----+        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+-----+    
+-----+    user = await db.users.find_one({"id": current_user['user_id']})
+-----+    if not user:
+-----+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+-----+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+----- 
+----- # ============= CATEGORIES =============
+----- @api_router.get("/categories")
+-----diff --git a/model.patch b/model.patch
+-----index d10da00..e69de29 100644
+-------- a/model.patch
+-----+++ b/model.patch
+-----@@ -1,50 +0,0 @@
+------diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
+------index 3c2bcd5..f8b29e5 100644
+--------- a/frontend/constants/colors.ts
+------+++ b/frontend/constants/colors.ts
+------@@ -1,25 +1,26 @@
+-------// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
+------+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
+------ export const COLORS = {
+-------  // Primary colors (German flag)
+-------  black: '#000000',
+-------  red: '#DD0000',
+-------  gold: '#FFCE00',
+------+  // الخلفيات
+------+  background: '#121212',        // أسود ناعم بدلاً من #000000
+------+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
+------   
+-------  // Background
+-------  background: '#0A0A0A',
+-------  cardBackground: '#1A1A1A',
+------+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
+------+  black: '#1A1A1A',            // أسود ناعم
+------+  red: '#E53935',              // أحمر أقل حدة
+------+  gold: '#FFB300',             // ذهبي دافئ
+------   
+-------  // Text
+-------  textPrimary: '#FFFFFF',
+-------  textSecondary: '#B0B0B0',
+-------  textMuted: '#707070',
+------+  // النصوص
+------+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
+------+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
+------+  textMuted: '#757575',        // رمادي داكن للنص الخافت
+------   
+-------  // Accents
+-------  primary: '#DD0000',
+-------  secondary: '#FFCE00',
+-------  success: '#00DD00',
+------+  // الحدود والخطوط
+------+  border: '#2A2A2A',           // حدود ناعمة
+------+  borderLight: '#3A3A3A',      // حدود أفتح
+------   
+-------  // Borders
+-------  border: '#2A2A2A',
+-------  borderLight: '#3A3A3A',
+------+  // ألوان إضافية
+------+  success: '#4CAF50',          // أخضر للنجاح
+------+  error: '#EF5350',            // أحمر للأخطاء
+------+  warning: '#FFA726',          // برتقالي للتحذيرات
+------+  info: '#42A5F5',             // أزرق للمعلومات
+------ };
