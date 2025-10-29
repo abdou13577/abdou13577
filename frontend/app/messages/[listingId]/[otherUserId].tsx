@@ -248,14 +248,72 @@ export default function ConversationScreen() {
     }
   };
 
+  const playAudio = async (audioBase64: string) => {
+    try {
+      if (sound) {
+        await sound.unloadAsync();
+      }
+      
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: audioBase64 },
+        { shouldPlay: true }
+      );
+      
+      setSound(newSound);
+      
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          newSound.unloadAsync();
+          setSound(null);
+        }
+      });
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      Alert.alert('خطأ', 'فشل تشغيل الرسالة الصوتية');
+    }
+  };
+
   const renderMessage = ({ item }: { item: Message }) => {
     const isMyMessage = item.from_user_id === user?.id;
+    
     return (
       <View style={[styles.messageContainer, isMyMessage ? styles.myMessage : styles.otherMessage]}>
         <View style={[styles.messageBubble, isMyMessage ? styles.myMessageBubble : styles.otherMessageBubble]}>
-          <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
-            {item.content}
-          </Text>
+          
+          {/* Render images if present */}
+          {item.message_type === 'image' && item.images && item.images.length > 0 && (
+            <View style={styles.messageImages}>
+              {item.images.map((image, index) => (
+                <Image 
+                  key={index} 
+                  source={{ uri: image }} 
+                  style={styles.messageImage}
+                  resizeMode="cover"
+                />
+              ))}
+            </View>
+          )}
+          
+          {/* Render audio player if present */}
+          {item.message_type === 'audio' && item.audio && (
+            <TouchableOpacity 
+              style={styles.audioMessage}
+              onPress={() => playAudio(item.audio!)}
+            >
+              <Ionicons name="play-circle" size={32} color={isMyMessage ? COLORS.black : COLORS.gold} />
+              <Text style={[styles.audioText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
+                رسالة صوتية
+              </Text>
+            </TouchableOpacity>
+          )}
+          
+          {/* Render text content */}
+          {item.content && (
+            <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
+              {item.content}
+            </Text>
+          )}
+          
           <Text style={[styles.messageTime, isMyMessage ? styles.myMessageTime : styles.otherMessageTime]}>
             {format(new Date(item.created_at), 'HH:mm')}
           </Text>
