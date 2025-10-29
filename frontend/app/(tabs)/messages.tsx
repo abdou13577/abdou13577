@@ -16,6 +16,7 @@ interface Conversation {
   listing_image: string | null;
   last_message: string;
   last_message_time: string;
+  unread_count: number;
 }
 
 export default function MessagesScreen() {
