@@ -432,7 +432,7 @@ async def get_conversation_messages(listing_id: str, other_user_id: str, current
             {"from_user_id": user_id, "to_user_id": other_user_id},
             {"from_user_id": other_user_id, "to_user_id": user_id}
         ]
-    }).sort('created_at', 1).to_list(1000)
+    }).sort('created_at', 1).to_list(100)  # Limit to last 100 messages for speed
     return [Message(**{k: v for k, v in msg.items() if k != '_id'}) for msg in messages]
 
 # ============= OFFERS =============
