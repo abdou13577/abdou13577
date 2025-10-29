@@ -62,20 +62,31 @@ export default function ConversationScreen() {
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
+    console.log('=== SENDING MESSAGE ===');
+    console.log('To User ID:', otherUserId);
+    console.log('Listing ID:', listingId);
+    console.log('Content:', newMessage.trim());
+    console.log('User:', user);
+
     setSending(true);
     try {
-      await api.post('/messages', {
+      console.log('Making POST request to /messages');
+      const response = await api.post('/messages', {
         to_user_id: otherUserId,
         listing_id: listingId,
         content: newMessage.trim(),
       });
+      console.log('Message sent successfully:', response.data);
       setNewMessage('');
       await loadMessages();
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
     } catch (error: any) {
-      Alert.alert('Fehler', error.response?.data?.detail || 'Nachricht konnte nicht gesendet werden');
+      console.error('ERROR SENDING MESSAGE:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      Alert.alert('Fehler', error.response?.data?.detail || error.message || 'Nachricht konnte nicht gesendet werden');
     } finally {
       setSending(false);
     }
