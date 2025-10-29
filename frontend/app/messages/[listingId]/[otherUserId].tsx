@@ -24,9 +24,11 @@ export default function ConversationScreen() {
   const [sending, setSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  const [hasMarkedRead, setHasMarkedRead] = useState(false);
+
   useEffect(() => {
     loadMessages();
-    const interval = setInterval(loadMessages, 3000); // تحديث كل 3 ثواني
+    const interval = setInterval(loadMessages, 5000); // تحديث كل 5 ثواني فقط
     return () => clearInterval(interval);
   }, []);
 
@@ -35,11 +37,14 @@ export default function ConversationScreen() {
       const response = await api.get(`/messages/${listingId}/${otherUserId}`);
       setMessages(response.data);
       
-      // Mark messages as read - don't fail if error
-      try {
-        await api.post(`/messages/mark-read/${listingId}/${otherUserId}`);
-      } catch (err) {
-        console.log('Could not mark as read:', err);
+      // Mark messages as read - only once when first opened
+      if (!hasMarkedRead && response.data.length > 0) {
+        try {
+          await api.post(`/messages/mark-read/${listingId}/${otherUserId}`);
+          setHasMarkedRead(true);
+        } catch (err) {
+          console.log('Could not mark as read:', err);
+        }
       }
       
       setLoading(false);
