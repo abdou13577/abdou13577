@@ -70,25 +70,170 @@ export default function ConversationScreen() {
     }
   };
 
+  // Pick images from gallery or camera
+  const pickImages = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('خطأ', 'نحتاج إلى إذن الوصول للمعرض');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets) {
+        const images = result.assets.slice(0, 5 - selectedImages.length); // Max 5 images
+        const base64Images = images.map(img => `data:image/jpeg;base64,${img.base64}`);
+        setSelectedImages([...selectedImages, ...base64Images]);
+      }
+    } catch (error) {
+      console.error('Error picking images:', error);
+      Alert.alert('خطأ', 'فشل اختيار الصور');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('خطأ', 'نحتاج إلى إذن الوصول للكاميرا');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0].base64) {
+        if (selectedImages.length < 5) {
+          setSelectedImages([...selectedImages, `data:image/jpeg;base64,${result.assets[0].base64}`]);
+        } else {
+          Alert.alert('تنبيه', 'يمكنك إرسال 5 صور فقط كحد أقصى');
+        }
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('خطأ', 'فشل التقاط الصورة');
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
+
+  // Audio recording functions
+  const startRecording = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('خطأ', 'نحتاج إلى إذن التسجيل الصوتي');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      
+      setRecording(recording);
+      setIsRecording(true);
+
+      // Auto stop after 60 seconds
+      setTimeout(async () => {
+        if (recording) {
+          await stopRecording(recording);
+        }
+      }, 60000);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      Alert.alert('خطأ', 'فشل بدء التسجيل');
+    }
+  };
+
+  const stopRecording = async (rec?: Audio.Recording) => {
+    try {
+      const recordingToStop = rec || recording;
+      if (!recordingToStop) return;
+
+      setIsRecording(false);
+      await recordingToStop.stopAndUnloadAsync();
+      const uri = recordingToStop.getURI();
+      
+      if (uri) {
+        // Convert to base64
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result as string;
+          // Send audio message immediately
+          await sendAudioMessage(base64Audio);
+        };
+      }
+      
+      setRecording(null);
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+      Alert.alert('خطأ', 'فشل إيقاف التسجيل');
+    }
+  };
+
+  const sendAudioMessage = async (audioBase64: string) => {
+    setSending(true);
+    try {
+      await api.post('/messages', {
+        to_user_id: otherUserId,
+        listing_id: listingId,
+        content: '🎤 رسالة صوتية',
+        message_type: 'audio',
+        audio: audioBase64,
+      });
+      await loadMessages();
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error: any) {
+      console.error('ERROR SENDING AUDIO:', error);
+      Alert.alert('خطأ', 'فشل إرسال الرسالة الصوتية');
+    } finally {
+      setSending(false);
+    }
+  };
+
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && selectedImages.length === 0) return;
 
     console.log('=== SENDING MESSAGE ===');
     console.log('To User ID:', otherUserId);
     console.log('Listing ID:', listingId);
     console.log('Content:', newMessage.trim());
-    console.log('User:', user);
+    console.log('Images count:', selectedImages.length);
 
     setSending(true);
     try {
+      const messageType = selectedImages.length > 0 ? 'image' : 'text';
       console.log('Making POST request to /messages');
       const response = await api.post('/messages', {
         to_user_id: otherUserId,
         listing_id: listingId,
-        content: newMessage.trim(),
+        content: newMessage.trim() || '📷 صور',
+        message_type: messageType,
+        images: selectedImages,
       });
       console.log('Message sent successfully:', response.data);
       setNewMessage('');
+      setSelectedImages([]);
       await loadMessages();
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
@@ -97,7 +242,7 @@ export default function ConversationScreen() {
       console.error('ERROR SENDING MESSAGE:', error);
       console.error('Error response:', error.response);
       console.error('Error message:', error.message);
-      Alert.alert('Fehler', error.response?.data?.detail || error.message || 'Nachricht konnte nicht gesendet werden');
+      Alert.alert('خطأ', error.response?.data?.detail || error.message || 'فشل إرسال الرسالة');
     } finally {
       setSending(false);
     }
