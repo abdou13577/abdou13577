@@ -61,6 +61,48 @@ export default function CreateListingScreen() {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  const pickVideos = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Fehler', 'Wir benötigen Zugriff auf Ihre Galerie');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsMultipleSelection: false,
+        quality: 0.5,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const video = result.assets[0];
+        
+        // Check video size (limit to 50MB for base64)
+        if (video.fileSize && video.fileSize > 50 * 1024 * 1024) {
+          Alert.alert('Fehler', 'Das Video ist zu groß. Maximale Größe ist 50 MB');
+          return;
+        }
+
+        if (videos.length >= 2) {
+          Alert.alert('Hinweis', 'Sie können maximal 2 Videos hochladen');
+          return;
+        }
+
+        const videoBase64 = `data:video/mp4;base64,${video.base64}`;
+        setVideos([...videos, videoBase64]);
+      }
+    } catch (error) {
+      console.error('Error picking video:', error);
+      Alert.alert('Fehler', 'Fehler beim Auswählen des Videos');
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
+
   const moveImageUp = (index: number) => {
     if (index === 0) return;
     const newImages = [...images];
