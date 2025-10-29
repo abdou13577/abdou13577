@@ -41,10 +41,10 @@ export default function Login() {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="COLORS.gold" />
+          <Ionicons name="arrow-back" size={24} color={COLORS.gold} />
         </TouchableOpacity>
         <View style={styles.header}>
-          <Ionicons name="log-in" size={60} color="COLORS.gold" />
+          <Ionicons name="log-in" size={60} color={COLORS.gold} />
           <Text style={styles.title}>Anmelden</Text>
           <Text style={styles.subtitle}>Willkommen zurück!</Text>
         </View>
