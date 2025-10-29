@@ -15,6 +15,7 @@ class OfferStatus(str, Enum):
 class MessageType(str, Enum):
     TEXT = "text"
     AUDIO = "audio"
+    IMAGE = "image"
 
 class SupportStatus(str, Enum):
     OPEN = "open"
