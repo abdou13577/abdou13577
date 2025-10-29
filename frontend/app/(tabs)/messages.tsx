@@ -50,16 +50,6 @@ export default function MessagesScreen() {
     }
   }, [user]);
 
-  useEffect(() => {
-    // Refresh when screen comes into focus
-    const unsubscribe = router.subscribe(() => {
-      if (user) {
-        loadConversations();
-      }
-    });
-    return () => unsubscribe?.();
-  }, [user]);
-
   const onRefresh = () => {
     setRefreshing(true);
     loadConversations();
