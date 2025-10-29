@@ -35,6 +35,9 @@ export default function ConversationScreen() {
       const response = await api.get(`/messages/${listingId}/${otherUserId}`);
       setMessages(response.data);
       setLoading(false);
+      
+      // Mark messages as read
+      await api.post(`/messages/mark-read/${listingId}/${otherUserId}`);
     } catch (error: any) {
       console.error('Error loading messages:', error);
       if (error.response?.status === 404) {
