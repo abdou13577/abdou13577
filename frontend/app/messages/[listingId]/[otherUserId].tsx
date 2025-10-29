@@ -30,6 +30,12 @@ export default function ConversationScreen() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  
+  // New states for images and audio
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   const [hasMarkedRead, setHasMarkedRead] = useState(false);
 
