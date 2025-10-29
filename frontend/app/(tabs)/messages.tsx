@@ -43,7 +43,21 @@ export default function MessagesScreen() {
   };
 
   useEffect(() => {
-    loadConversations();
+    if (user) {
+      loadConversations();
+      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Refresh when screen comes into focus
+    const unsubscribe = router.subscribe(() => {
+      if (user) {
+        loadConversations();
+      }
+    });
+    return () => unsubscribe?.();
   }, [user]);
 
   const onRefresh = () => {
