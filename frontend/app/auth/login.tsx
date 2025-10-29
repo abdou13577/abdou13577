@@ -14,16 +14,24 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Email:', email);
+    console.log('Password length:', password.length);
+    
     if (!email || !password) {
       Alert.alert('Fehler', 'Bitte füllen Sie alle Felder aus');
       return;
     }
     setLoading(true);
     try {
+      console.log('Calling login function...');
       await login(email, password);
+      console.log('Login successful!');
       router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert('Anmeldefehler', error.message);
+      console.error('Login error:', error);
+      console.error('Error message:', error.message);
+      Alert.alert('Anmeldefehler', error.message || 'Benutzername oder Passwort ist falsch');
     } finally {
       setLoading(false);
     }
