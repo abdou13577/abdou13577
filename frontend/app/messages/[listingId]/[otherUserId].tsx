@@ -254,6 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 12,
+    paddingBottom: 24,
     backgroundColor: COLORS.cardBackground,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
