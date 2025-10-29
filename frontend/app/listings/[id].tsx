@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIn
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import { Video } from 'expo-av';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../constants/colors';
