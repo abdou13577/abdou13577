@@ -302,20 +302,71 @@ export default function ConversationScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
+      {/* Image Preview */}
+      {selectedImages.length > 0 && (
+        <View style={styles.imagePreviewContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {selectedImages.map((image, index) => (
+              <View key={index} style={styles.imagePreviewItem}>
+                <Image source={{ uri: image }} style={styles.imagePreview} />
+                <TouchableOpacity 
+                  style={styles.removeImageButton}
+                  onPress={() => removeImage(index)}
+                >
+                  <Ionicons name="close-circle" size={20} color={COLORS.red} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, 20) + 20 }]}>
+        {/* Media buttons */}
+        <View style={styles.mediaButtons}>
+          <TouchableOpacity 
+            style={styles.mediaButton}
+            onPress={pickImages}
+            disabled={selectedImages.length >= 5}
+          >
+            <Ionicons name="image" size={24} color={selectedImages.length >= 5 ? COLORS.textMuted : COLORS.gold} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.mediaButton}
+            onPress={takePhoto}
+            disabled={selectedImages.length >= 5}
+          >
+            <Ionicons name="camera" size={24} color={selectedImages.length >= 5 ? COLORS.textMuted : COLORS.gold} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.mediaButton, isRecording && styles.recordingButton]}
+            onPress={isRecording ? () => stopRecording() : startRecording}
+            disabled={sending}
+          >
+            <Ionicons 
+              name={isRecording ? "stop" : "mic"} 
+              size={24} 
+              color={isRecording ? COLORS.red : COLORS.gold} 
+            />
+          </TouchableOpacity>
+        </View>
+
         <TextInput
           style={styles.input}
-          placeholder="Nachricht schreiben..."
+          placeholder="اكتب رسالة..."
           placeholderTextColor={COLORS.textMuted}
           value={newMessage}
           onChangeText={setNewMessage}
           multiline
           maxLength={500}
         />
+        
         <TouchableOpacity 
-          style={[styles.sendButton, (!newMessage.trim() || sending) && styles.sendButtonDisabled]} 
+          style={[styles.sendButton, (!newMessage.trim() && selectedImages.length === 0 || sending) && styles.sendButtonDisabled]} 
           onPress={sendMessage}
-          disabled={!newMessage.trim() || sending}
+          disabled={(!newMessage.trim() && selectedImages.length === 0) || sending}
         >
           {sending ? (
             <ActivityIndicator size="small" color={COLORS.black} />
