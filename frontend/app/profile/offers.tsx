@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: 12,
+    paddingTop: 50,
     borderBottomWidth: 2,
     borderBottomColor: COLORS.red,
   },

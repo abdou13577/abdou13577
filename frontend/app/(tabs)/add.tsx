@@ -69,7 +69,7 @@ export default function AddScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 50, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
   content: { padding: 16 },
   infoCard: { backgroundColor: COLORS.cardBackground, borderRadius: 16, padding: 24, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: COLORS.border },

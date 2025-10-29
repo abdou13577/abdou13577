@@ -128,7 +128,7 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
-  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  header: { backgroundColor: COLORS.cardBackground, paddingHorizontal: 16, paddingVertical: 16, paddingTop: 50, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.red },
   conversationCard: { flexDirection: 'row', backgroundColor: COLORS.cardBackground, padding: 16, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   avatar: { width: 56, height: 56, borderRadius: 28, marginRight: 12 },
