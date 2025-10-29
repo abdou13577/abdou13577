@@ -340,6 +340,20 @@ async def delete_listing(listing_id: str, current_user: dict = Depends(get_curre
     return {"message": "Anzeige gelöscht"}
 
 # ============= MESSAGES =============
+@api_router.post("/messages/mark-read/{listing_id}/{other_user_id}")
+async def mark_messages_read(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
+    """Mark all messages from other_user_id as read"""
+    await db.messages.update_many(
+        {
+            "listing_id": listing_id,
+            "from_user_id": other_user_id,
+            "to_user_id": current_user['user_id'],
+            "read": False
+        },
+        {"$set": {"read": True}}
+    )
+    return {"message": "Messages marked as read"}
+
 @api_router.post("/messages")
 async def send_message(message_data: MessageCreate, current_user: dict = Depends(get_current_user)):
     message_id = str(uuid.uuid4())
