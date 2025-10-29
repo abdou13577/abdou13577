@@ -10,17 +10,28 @@ export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
 
   const handleLogout = async () => {
+    console.log('=== LOGOUT CLICKED ===');
+    console.log('Platform:', Platform.OS);
+    
     if (Platform.OS === 'web') {
-      // For web, use confirm dialog
-      if (window.confirm('Möchten Sie sich wirklich abmelden?')) {
+      console.log('Using web logout');
+      // For web, logout directly without confirmation to avoid any issues
+      try {
         await logout();
+        console.log('Logout successful, redirecting...');
         router.replace('/');
+      } catch (error) {
+        console.error('Logout error:', error);
       }
     } else {
+      console.log('Using mobile logout');
       // For mobile, use Alert
       Alert.alert('Abmelden', 'Möchten Sie sich wirklich abmelden?', [
         { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Abmelden', style: 'destructive', onPress: async () => { await logout(); router.replace('/'); } },
+        { text: 'Abmelden', style: 'destructive', onPress: async () => { 
+          await logout(); 
+          router.replace('/'); 
+        } },
       ]);
     }
   };
