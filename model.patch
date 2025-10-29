@@ -1,247 +1,653 @@
+diff --git a/frontend/app/messages/[listingId]/[otherUserId].tsx b/frontend/app/messages/[listingId]/[otherUserId].tsx
+index 27fbb05..18c7f37 100644
+--- a/frontend/app/messages/[listingId]/[otherUserId].tsx
++++ b/frontend/app/messages/[listingId]/[otherUserId].tsx
+@@ -70,25 +70,170 @@ export default function ConversationScreen() {
+     }
+   };
+ 
++  // Pick images from gallery or camera
++  const pickImages = async () => {
++    try {
++      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
++      if (status !== 'granted') {
++        Alert.alert('خطأ', 'نحتاج إلى إذن الوصول للمعرض');
++        return;
++      }
++
++      const result = await ImagePicker.launchImageLibraryAsync({
++        mediaTypes: ImagePicker.MediaTypeOptions.Images,
++        allowsMultipleSelection: true,
++        quality: 0.7,
++        base64: true,
++      });
++
++      if (!result.canceled && result.assets) {
++        const images = result.assets.slice(0, 5 - selectedImages.length); // Max 5 images
++        const base64Images = images.map(img => `data:image/jpeg;base64,${img.base64}`);
++        setSelectedImages([...selectedImages, ...base64Images]);
++      }
++    } catch (error) {
++      console.error('Error picking images:', error);
++      Alert.alert('خطأ', 'فشل اختيار الصور');
++    }
++  };
++
++  const takePhoto = async () => {
++    try {
++      const { status } = await ImagePicker.requestCameraPermissionsAsync();
++      if (status !== 'granted') {
++        Alert.alert('خطأ', 'نحتاج إلى إذن الوصول للكاميرا');
++        return;
++      }
++
++      const result = await ImagePicker.launchCameraAsync({
++        quality: 0.7,
++        base64: true,
++      });
++
++      if (!result.canceled && result.assets && result.assets[0].base64) {
++        if (selectedImages.length < 5) {
++          setSelectedImages([...selectedImages, `data:image/jpeg;base64,${result.assets[0].base64}`]);
++        } else {
++          Alert.alert('تنبيه', 'يمكنك إرسال 5 صور فقط كحد أقصى');
++        }
++      }
++    } catch (error) {
++      console.error('Error taking photo:', error);
++      Alert.alert('خطأ', 'فشل التقاط الصورة');
++    }
++  };
++
++  const removeImage = (index: number) => {
++    setSelectedImages(selectedImages.filter((_, i) => i !== index));
++  };
++
++  // Audio recording functions
++  const startRecording = async () => {
++    try {
++      const { status } = await Audio.requestPermissionsAsync();
++      if (status !== 'granted') {
++        Alert.alert('خطأ', 'نحتاج إلى إذن التسجيل الصوتي');
++        return;
++      }
++
++      await Audio.setAudioModeAsync({
++        allowsRecordingIOS: true,
++        playsInSilentModeIOS: true,
++      });
++
++      const { recording } = await Audio.Recording.createAsync(
++        Audio.RecordingOptionsPresets.HIGH_QUALITY
++      );
++      
++      setRecording(recording);
++      setIsRecording(true);
++
++      // Auto stop after 60 seconds
++      setTimeout(async () => {
++        if (recording) {
++          await stopRecording(recording);
++        }
++      }, 60000);
++    } catch (error) {
++      console.error('Failed to start recording:', error);
++      Alert.alert('خطأ', 'فشل بدء التسجيل');
++    }
++  };
++
++  const stopRecording = async (rec?: Audio.Recording) => {
++    try {
++      const recordingToStop = rec || recording;
++      if (!recordingToStop) return;
++
++      setIsRecording(false);
++      await recordingToStop.stopAndUnloadAsync();
++      const uri = recordingToStop.getURI();
++      
++      if (uri) {
++        // Convert to base64
++        const response = await fetch(uri);
++        const blob = await response.blob();
++        const reader = new FileReader();
++        reader.readAsDataURL(blob);
++        reader.onloadend = async () => {
++          const base64Audio = reader.result as string;
++          // Send audio message immediately
++          await sendAudioMessage(base64Audio);
++        };
++      }
++      
++      setRecording(null);
++    } catch (error) {
++      console.error('Failed to stop recording:', error);
++      Alert.alert('خطأ', 'فشل إيقاف التسجيل');
++    }
++  };
++
++  const sendAudioMessage = async (audioBase64: string) => {
++    setSending(true);
++    try {
++      await api.post('/messages', {
++        to_user_id: otherUserId,
++        listing_id: listingId,
++        content: '🎤 رسالة صوتية',
++        message_type: 'audio',
++        audio: audioBase64,
++      });
++      await loadMessages();
++      setTimeout(() => {
++        flatListRef.current?.scrollToEnd({ animated: true });
++      }, 100);
++    } catch (error: any) {
++      console.error('ERROR SENDING AUDIO:', error);
++      Alert.alert('خطأ', 'فشل إرسال الرسالة الصوتية');
++    } finally {
++      setSending(false);
++    }
++  };
++
+   const sendMessage = async () => {
+-    if (!newMessage.trim()) return;
++    if (!newMessage.trim() && selectedImages.length === 0) return;
+ 
+     console.log('=== SENDING MESSAGE ===');
+     console.log('To User ID:', otherUserId);
+     console.log('Listing ID:', listingId);
+     console.log('Content:', newMessage.trim());
+-    console.log('User:', user);
++    console.log('Images count:', selectedImages.length);
+ 
+     setSending(true);
+     try {
++      const messageType = selectedImages.length > 0 ? 'image' : 'text';
+       console.log('Making POST request to /messages');
+       const response = await api.post('/messages', {
+         to_user_id: otherUserId,
+         listing_id: listingId,
+-        content: newMessage.trim(),
++        content: newMessage.trim() || '📷 صور',
++        message_type: messageType,
++        images: selectedImages,
+       });
+       console.log('Message sent successfully:', response.data);
+       setNewMessage('');
++      setSelectedImages([]);
+       await loadMessages();
+       setTimeout(() => {
+         flatListRef.current?.scrollToEnd({ animated: true });
+@@ -97,20 +242,78 @@ export default function ConversationScreen() {
+       console.error('ERROR SENDING MESSAGE:', error);
+       console.error('Error response:', error.response);
+       console.error('Error message:', error.message);
+-      Alert.alert('Fehler', error.response?.data?.detail || error.message || 'Nachricht konnte nicht gesendet werden');
++      Alert.alert('خطأ', error.response?.data?.detail || error.message || 'فشل إرسال الرسالة');
+     } finally {
+       setSending(false);
+     }
+   };
+ 
++  const playAudio = async (audioBase64: string) => {
++    try {
++      if (sound) {
++        await sound.unloadAsync();
++      }
++      
++      const { sound: newSound } = await Audio.Sound.createAsync(
++        { uri: audioBase64 },
++        { shouldPlay: true }
++      );
++      
++      setSound(newSound);
++      
++      newSound.setOnPlaybackStatusUpdate((status) => {
++        if (status.isLoaded && status.didJustFinish) {
++          newSound.unloadAsync();
++          setSound(null);
++        }
++      });
++    } catch (error) {
++      console.error('Error playing audio:', error);
++      Alert.alert('خطأ', 'فشل تشغيل الرسالة الصوتية');
++    }
++  };
++
+   const renderMessage = ({ item }: { item: Message }) => {
+     const isMyMessage = item.from_user_id === user?.id;
++    
+     return (
+       <View style={[styles.messageContainer, isMyMessage ? styles.myMessage : styles.otherMessage]}>
+         <View style={[styles.messageBubble, isMyMessage ? styles.myMessageBubble : styles.otherMessageBubble]}>
+-          <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
+-            {item.content}
+-          </Text>
++          
++          {/* Render images if present */}
++          {item.message_type === 'image' && item.images && item.images.length > 0 && (
++            <View style={styles.messageImages}>
++              {item.images.map((image, index) => (
++                <Image 
++                  key={index} 
++                  source={{ uri: image }} 
++                  style={styles.messageImage}
++                  resizeMode="cover"
++                />
++              ))}
++            </View>
++          )}
++          
++          {/* Render audio player if present */}
++          {item.message_type === 'audio' && item.audio && (
++            <TouchableOpacity 
++              style={styles.audioMessage}
++              onPress={() => playAudio(item.audio!)}
++            >
++              <Ionicons name="play-circle" size={32} color={isMyMessage ? COLORS.black : COLORS.gold} />
++              <Text style={[styles.audioText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
++                رسالة صوتية
++              </Text>
++            </TouchableOpacity>
++          )}
++          
++          {/* Render text content */}
++          {item.content && (
++            <Text style={[styles.messageText, isMyMessage ? styles.myMessageText : styles.otherMessageText]}>
++              {item.content}
++            </Text>
++          )}
++          
+           <Text style={[styles.messageTime, isMyMessage ? styles.myMessageTime : styles.otherMessageTime]}>
+             {format(new Date(item.created_at), 'HH:mm')}
+           </Text>
+@@ -157,20 +360,71 @@ export default function ConversationScreen() {
+         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+       />
+ 
++      {/* Image Preview */}
++      {selectedImages.length > 0 && (
++        <View style={styles.imagePreviewContainer}>
++          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
++            {selectedImages.map((image, index) => (
++              <View key={index} style={styles.imagePreviewItem}>
++                <Image source={{ uri: image }} style={styles.imagePreview} />
++                <TouchableOpacity 
++                  style={styles.removeImageButton}
++                  onPress={() => removeImage(index)}
++                >
++                  <Ionicons name="close-circle" size={20} color={COLORS.red} />
++                </TouchableOpacity>
++              </View>
++            ))}
++          </ScrollView>
++        </View>
++      )}
++
+       <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, 20) + 20 }]}>
++        {/* Media buttons */}
++        <View style={styles.mediaButtons}>
++          <TouchableOpacity 
++            style={styles.mediaButton}
++            onPress={pickImages}
++            disabled={selectedImages.length >= 5}
++          >
++            <Ionicons name="image" size={24} color={selectedImages.length >= 5 ? COLORS.textMuted : COLORS.gold} />
++          </TouchableOpacity>
++          
++          <TouchableOpacity 
++            style={styles.mediaButton}
++            onPress={takePhoto}
++            disabled={selectedImages.length >= 5}
++          >
++            <Ionicons name="camera" size={24} color={selectedImages.length >= 5 ? COLORS.textMuted : COLORS.gold} />
++          </TouchableOpacity>
++          
++          <TouchableOpacity 
++            style={[styles.mediaButton, isRecording && styles.recordingButton]}
++            onPress={isRecording ? () => stopRecording() : startRecording}
++            disabled={sending}
++          >
++            <Ionicons 
++              name={isRecording ? "stop" : "mic"} 
++              size={24} 
++              color={isRecording ? COLORS.red : COLORS.gold} 
++            />
++          </TouchableOpacity>
++        </View>
++
+         <TextInput
+           style={styles.input}
+-          placeholder="Nachricht schreiben..."
++          placeholder="اكتب رسالة..."
+           placeholderTextColor={COLORS.textMuted}
+           value={newMessage}
+           onChangeText={setNewMessage}
+           multiline
+           maxLength={500}
+         />
++        
+         <TouchableOpacity 
+-          style={[styles.sendButton, (!newMessage.trim() || sending) && styles.sendButtonDisabled]} 
++          style={[styles.sendButton, (!newMessage.trim() && selectedImages.length === 0 || sending) && styles.sendButtonDisabled]} 
+           onPress={sendMessage}
+-          disabled={!newMessage.trim() || sending}
++          disabled={(!newMessage.trim() && selectedImages.length === 0) || sending}
+         >
+           {sending ? (
+             <ActivityIndicator size="small" color={COLORS.black} />
+@@ -306,4 +560,64 @@ const styles = StyleSheet.create({
+     backgroundColor: COLORS.textMuted,
+     opacity: 0.5,
+   },
++  imagePreviewContainer: {
++    backgroundColor: COLORS.cardBackground,
++    paddingHorizontal: 12,
++    paddingVertical: 8,
++    borderTopWidth: 1,
++    borderTopColor: COLORS.border,
++  },
++  imagePreviewItem: {
++    position: 'relative',
++    marginRight: 8,
++  },
++  imagePreview: {
++    width: 60,
++    height: 60,
++    borderRadius: 8,
++  },
++  removeImageButton: {
++    position: 'absolute',
++    top: -5,
++    right: -5,
++    backgroundColor: COLORS.background,
++    borderRadius: 10,
++  },
++  mediaButtons: {
++    flexDirection: 'column',
++    marginRight: 8,
++  },
++  mediaButton: {
++    width: 36,
++    height: 36,
++    borderRadius: 18,
++    backgroundColor: COLORS.background,
++    justifyContent: 'center',
++    alignItems: 'center',
++    marginBottom: 4,
++  },
++  recordingButton: {
++    backgroundColor: COLORS.red,
++  },
++  messageImages: {
++    flexDirection: 'row',
++    flexWrap: 'wrap',
++    marginBottom: 8,
++  },
++  messageImage: {
++    width: 120,
++    height: 120,
++    borderRadius: 8,
++    marginRight: 4,
++    marginBottom: 4,
++  },
++  audioMessage: {
++    flexDirection: 'row',
++    alignItems: 'center',
++    paddingVertical: 8,
++  },
++  audioText: {
++    marginLeft: 8,
++    fontSize: 14,
++  },
+ });
 diff --git a/model.patch b/model.patch
-index 3ec1881..e69de29 100644
+index 7c12eb6..5b68b72 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,242 +0,0 @@
+@@ -1,247 +0,0 @@
 -diff --git a/model.patch b/model.patch
--index a07d9df..e69de29 100644
+-index 3ec1881..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,237 +0,0 @@
+-@@ -1,242 +0,0 @@
 --diff --git a/model.patch b/model.patch
---index 133866a..e69de29 100644
+--index a07d9df..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,232 +0,0 @@
+--@@ -1,237 +0,0 @@
 ---diff --git a/model.patch b/model.patch
----index 2597230..e69de29 100644
+---index 133866a..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,227 +0,0 @@
-----diff --git a/frontend/app/(tabs)/messages.tsx b/frontend/app/(tabs)/messages.tsx
-----index ac376ac..318c5b4 100644
-------- a/frontend/app/(tabs)/messages.tsx
-----+++ b/frontend/app/(tabs)/messages.tsx
-----@@ -43,7 +43,21 @@ export default function MessagesScreen() {
-----   };
----- 
-----   useEffect(() => {
------    loadConversations();
-----+    if (user) {
-----+      loadConversations();
-----+      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
-----+      return () => clearInterval(interval);
-----+    }
-----+  }, [user]);
-----+
-----+  useEffect(() => {
-----+    // Refresh when screen comes into focus
-----+    const unsubscribe = router.subscribe(() => {
-----+      if (user) {
-----+        loadConversations();
-----+      }
-----+    });
-----+    return () => unsubscribe?.();
-----   }, [user]);
----- 
-----   const onRefresh = () => {
+---@@ -1,232 +0,0 @@
 ----diff --git a/model.patch b/model.patch
-----index add2911..e69de29 100644
+----index 2597230..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,195 +0,0 @@
------diff --git a/backend/server.py b/backend/server.py
------index 7514237..32681dc 100644
--------- a/backend/server.py
------+++ b/backend/server.py
------@@ -381,6 +381,15 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
------         if conv_key not in conversations:
------             other_user = await db.users.find_one({"id": other_user_id})
------             listing = await db.listings.find_one({"id": msg['listing_id']})
------+            
------+            # Count unread messages from this user
------+            unread_count = await db.messages.count_documents({
------+                "listing_id": msg['listing_id'],
------+                "from_user_id": other_user_id,
------+                "to_user_id": user_id,
------+                "read": False
------+            })
------+            
------             conversations[conv_key] = {
------                 "other_user_id": other_user_id,
------                 "other_user_name": other_user['name'] if other_user else "Gelöschter Benutzer",
------@@ -390,7 +399,7 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
------                 "listing_image": listing['images'][0] if listing and listing.get('images') else None,
------                 "last_message": msg['content'][:50],
------                 "last_message_time": msg['created_at'],
-------                "unread": 0
------+                "unread_count": unread_count
------             }
------     return list(conversations.values())
------ @api_router.get("/messages/unread-count")
+----@@ -1,227 +0,0 @@
+-----diff --git a/frontend/app/(tabs)/messages.tsx b/frontend/app/(tabs)/messages.tsx
+-----index ac376ac..318c5b4 100644
+-------- a/frontend/app/(tabs)/messages.tsx
+-----+++ b/frontend/app/(tabs)/messages.tsx
+-----@@ -43,7 +43,21 @@ export default function MessagesScreen() {
+-----   };
+----- 
+-----   useEffect(() => {
+------    loadConversations();
+-----+    if (user) {
+-----+      loadConversations();
+-----+      const interval = setInterval(loadConversations, 3000); // تحديث كل 3 ثواني
+-----+      return () => clearInterval(interval);
+-----+    }
+-----+  }, [user]);
+-----+
+-----+  useEffect(() => {
+-----+    // Refresh when screen comes into focus
+-----+    const unsubscribe = router.subscribe(() => {
+-----+      if (user) {
+-----+        loadConversations();
+-----+      }
+-----+    });
+-----+    return () => unsubscribe?.();
+-----   }, [user]);
+----- 
+-----   const onRefresh = () => {
 -----diff --git a/model.patch b/model.patch
------index 7ed62fe..e69de29 100644
+-----index add2911..e69de29 100644
 -------- a/model.patch
 -----+++ b/model.patch
------@@ -1,161 +0,0 @@
-------diff --git a/backend/models.py b/backend/models.py
-------index 7e0ae6c..0fb5991 100644
---------- a/backend/models.py
-------+++ b/backend/models.py
-------@@ -83,6 +83,7 @@ class Message(BaseModel):
-------     listing_id: str
-------     content: str
-------     message_type: MessageType
-------+    read: bool = False
-------     created_at: datetime = Field(default_factory=datetime.utcnow)
------- 
------- # Offer Models
+-----@@ -1,195 +0,0 @@
 ------diff --git a/backend/server.py b/backend/server.py
-------index dc85811..60770f7 100644
+------index 7514237..32681dc 100644
 --------- a/backend/server.py
 ------+++ b/backend/server.py
-------@@ -350,6 +350,7 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
-------         "listing_id": message_data.listing_id,
-------         "content": message_data.content,
-------         "message_type": message_data.message_type,
-------+        "read": False,
-------         "created_at": datetime.utcnow()
-------     }
-------     await db.messages.insert_one(message_dict)
-------@@ -378,6 +379,25 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
-------                 "unread": 0
+------@@ -381,6 +381,15 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+------         if conv_key not in conversations:
+------             other_user = await db.users.find_one({"id": other_user_id})
+------             listing = await db.listings.find_one({"id": msg['listing_id']})
+------+            
+------+            # Count unread messages from this user
+------+            unread_count = await db.messages.count_documents({
+------+                "listing_id": msg['listing_id'],
+------+                "from_user_id": other_user_id,
+------+                "to_user_id": user_id,
+------+                "read": False
+------+            })
+------+            
+------             conversations[conv_key] = {
+------                 "other_user_id": other_user_id,
+------                 "other_user_name": other_user['name'] if other_user else "Gelöschter Benutzer",
+------@@ -390,7 +399,7 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+------                 "listing_image": listing['images'][0] if listing and listing.get('images') else None,
+------                 "last_message": msg['content'][:50],
+------                 "last_message_time": msg['created_at'],
+-------                "unread": 0
+------+                "unread_count": unread_count
 ------             }
 ------     return list(conversations.values())
-------+@api_router.get("/messages/unread-count")
-------+async def get_unread_count(current_user: dict = Depends(get_current_user)):
-------+    """Get count of unread messages"""
-------+    count = await db.messages.count_documents({
-------+        "to_user_id": current_user['user_id'],
-------+        "read": False
-------+    })
-------+@api_router.put("/messages/mark-read/{listing_id}/{other_user_id}")
-------+async def mark_messages_read(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
-------+    """Mark messages as read when user opens a conversation"""
-------+    user_id = current_user['user_id']
-------+    await db.messages.update_many({
-------+        "listing_id": listing_id,
-------+        "from_user_id": other_user_id,
-------+        "to_user_id": user_id,
-------+        "read": False
-------+    }, {"$set": {"read": True}})
-------+    return {"message": "Messages marked as read"}
-------+    return {"count": count}
------- 
------- @api_router.get("/messages/{listing_id}/{other_user_id}")
------- async def get_conversation_messages(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
-------@@ -416,6 +436,7 @@ async def create_offer(offer_data: OfferCreate, current_user: dict = Depends(get
-------         "listing_id": offer_data.listing_id,
-------         "content": auto_message,
-------         "message_type": MessageType.TEXT,
-------+        "read": False,
-------         "created_at": datetime.utcnow()
-------     }
-------     await db.messages.insert_one(message_dict)
-------@@ -478,6 +499,7 @@ async def handle_offer_action(action_data: OfferAction, current_user: dict = Dep
-------         "listing_id": offer['listing_id'],
-------         "content": auto_message,
-------         "message_type": MessageType.TEXT,
-------+        "read": False,
-------         "created_at": datetime.utcnow()
-------     }
-------     await db.messages.insert_one(message_dict)
+------ @api_router.get("/messages/unread-count")
 ------diff --git a/model.patch b/model.patch
-------index 21668c2..e69de29 100644
+------index 7ed62fe..e69de29 100644
 --------- a/model.patch
 ------+++ b/model.patch
-------@@ -1,90 +0,0 @@
+------@@ -1,161 +0,0 @@
+-------diff --git a/backend/models.py b/backend/models.py
+-------index 7e0ae6c..0fb5991 100644
+---------- a/backend/models.py
+-------+++ b/backend/models.py
+-------@@ -83,6 +83,7 @@ class Message(BaseModel):
+-------     listing_id: str
+-------     content: str
+-------     message_type: MessageType
+-------+    read: bool = False
+-------     created_at: datetime = Field(default_factory=datetime.utcnow)
+------- 
+------- # Offer Models
 -------diff --git a/backend/server.py b/backend/server.py
--------index 9b7cf55..d280e92 100644
+-------index dc85811..60770f7 100644
 ---------- a/backend/server.py
 -------+++ b/backend/server.py
--------@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
--------         update_data['phone_enabled'] = phone_enabled
--------     if update_data:
--------         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
---------    return {"message": "Profil aktualisiert"}
--------+    user = await db.users.find_one({"id": current_user['user_id']})
--------+    if not user:
--------+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
--------+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
--------+
--------+# Profile management endpoints
--------+@api_router.put("/users/profile")
--------+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
--------+    update_data = {}
--------+    if 'name' in profile_data:
--------+        update_data['name'] = profile_data['name']
--------+    if 'profile_image' in profile_data:
--------+        update_data['profile_image'] = profile_data['profile_image']
--------+    if 'phone_enabled' in profile_data:
--------+        update_data['phone_enabled'] = profile_data['phone_enabled']
--------+    
--------+    if update_data:
--------+        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
--------+    
--------+    user = await db.users.find_one({"id": current_user['user_id']})
--------+    if not user:
--------+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
--------+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+-------@@ -350,6 +350,7 @@ async def send_message(message_data: MessageCreate, current_user: dict = Depends
+-------         "listing_id": message_data.listing_id,
+-------         "content": message_data.content,
+-------         "message_type": message_data.message_type,
+-------+        "read": False,
+-------         "created_at": datetime.utcnow()
+-------     }
+-------     await db.messages.insert_one(message_dict)
+-------@@ -378,6 +379,25 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
+-------                 "unread": 0
+-------             }
+-------     return list(conversations.values())
+-------+@api_router.get("/messages/unread-count")
+-------+async def get_unread_count(current_user: dict = Depends(get_current_user)):
+-------+    """Get count of unread messages"""
+-------+    count = await db.messages.count_documents({
+-------+        "to_user_id": current_user['user_id'],
+-------+        "read": False
+-------+    })
+-------+@api_router.put("/messages/mark-read/{listing_id}/{other_user_id}")
+-------+async def mark_messages_read(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
+-------+    """Mark messages as read when user opens a conversation"""
+-------+    user_id = current_user['user_id']
+-------+    await db.messages.update_many({
+-------+        "listing_id": listing_id,
+-------+        "from_user_id": other_user_id,
+-------+        "to_user_id": user_id,
+-------+        "read": False
+-------+    }, {"$set": {"read": True}})
+-------+    return {"message": "Messages marked as read"}
+-------+    return {"count": count}
 ------- 
-------- # ============= CATEGORIES =============
-------- @api_router.get("/categories")
+------- @api_router.get("/messages/{listing_id}/{other_user_id}")
+------- async def get_conversation_messages(listing_id: str, other_user_id: str, current_user: dict = Depends(get_current_user)):
+-------@@ -416,6 +436,7 @@ async def create_offer(offer_data: OfferCreate, current_user: dict = Depends(get
+-------         "listing_id": offer_data.listing_id,
+-------         "content": auto_message,
+-------         "message_type": MessageType.TEXT,
+-------+        "read": False,
+-------         "created_at": datetime.utcnow()
+-------     }
+-------     await db.messages.insert_one(message_dict)
+-------@@ -478,6 +499,7 @@ async def handle_offer_action(action_data: OfferAction, current_user: dict = Dep
+-------         "listing_id": offer['listing_id'],
+-------         "content": auto_message,
+-------         "message_type": MessageType.TEXT,
+-------+        "read": False,
+-------         "created_at": datetime.utcnow()
+-------     }
+-------     await db.messages.insert_one(message_dict)
 -------diff --git a/model.patch b/model.patch
--------index d10da00..e69de29 100644
+-------index 21668c2..e69de29 100644
 ---------- a/model.patch
 -------+++ b/model.patch
--------@@ -1,50 +0,0 @@
---------diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
---------index 3c2bcd5..f8b29e5 100644
------------ a/frontend/constants/colors.ts
---------+++ b/frontend/constants/colors.ts
---------@@ -1,25 +1,26 @@
----------// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
---------+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
--------- export const COLORS = {
----------  // Primary colors (German flag)
----------  black: '#000000',
----------  red: '#DD0000',
----------  gold: '#FFCE00',
---------+  // الخلفيات
---------+  background: '#121212',        // أسود ناعم بدلاً من #000000
---------+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
---------   
----------  // Background
----------  background: '#0A0A0A',
----------  cardBackground: '#1A1A1A',
---------+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
---------+  black: '#1A1A1A',            // أسود ناعم
---------+  red: '#E53935',              // أحمر أقل حدة
---------+  gold: '#FFB300',             // ذهبي دافئ
---------   
----------  // Text
----------  textPrimary: '#FFFFFF',
----------  textSecondary: '#B0B0B0',
----------  textMuted: '#707070',
---------+  // النصوص
---------+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
---------+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
---------+  textMuted: '#757575',        // رمادي داكن للنص الخافت
---------   
----------  // Accents
----------  primary: '#DD0000',
----------  secondary: '#FFCE00',
----------  success: '#00DD00',
---------+  // الحدود والخطوط
---------+  border: '#2A2A2A',           // حدود ناعمة
---------+  borderLight: '#3A3A3A',      // حدود أفتح
---------   
----------  // Borders
----------  border: '#2A2A2A',
----------  borderLight: '#3A3A3A',
---------+  // ألوان إضافية
---------+  success: '#4CAF50',          // أخضر للنجاح
---------+  error: '#EF5350',            // أحمر للأخطاء
---------+  warning: '#FFA726',          // برتقالي للتحذيرات
---------+  info: '#42A5F5',             // أزرق للمعلومات
--------- };
+-------@@ -1,90 +0,0 @@
+--------diff --git a/backend/server.py b/backend/server.py
+--------index 9b7cf55..d280e92 100644
+----------- a/backend/server.py
+--------+++ b/backend/server.py
+--------@@ -120,7 +120,29 @@ async def update_profile(profile_image: Optional[str] = None, phone_enabled: Opt
+--------         update_data['phone_enabled'] = phone_enabled
+--------     if update_data:
+--------         await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+---------    return {"message": "Profil aktualisiert"}
+--------+    user = await db.users.find_one({"id": current_user['user_id']})
+--------+    if not user:
+--------+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+--------+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+--------+
+--------+# Profile management endpoints
+--------+@api_router.put("/users/profile")
+--------+async def update_user_profile(profile_data: dict, current_user: dict = Depends(get_current_user)):
+--------+    update_data = {}
+--------+    if 'name' in profile_data:
+--------+        update_data['name'] = profile_data['name']
+--------+    if 'profile_image' in profile_data:
+--------+        update_data['profile_image'] = profile_data['profile_image']
+--------+    if 'phone_enabled' in profile_data:
+--------+        update_data['phone_enabled'] = profile_data['phone_enabled']
+--------+    
+--------+    if update_data:
+--------+        await db.users.update_one({"id": current_user['user_id']}, {"$set": update_data})
+--------+    
+--------+    user = await db.users.find_one({"id": current_user['user_id']})
+--------+    if not user:
+--------+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+--------+    return User(**{k: v for k, v in user.items() if k != 'password' and k != '_id'})
+-------- 
+-------- # ============= CATEGORIES =============
+-------- @api_router.get("/categories")
+--------diff --git a/model.patch b/model.patch
+--------index d10da00..e69de29 100644
+----------- a/model.patch
+--------+++ b/model.patch
+--------@@ -1,50 +0,0 @@
+---------diff --git a/frontend/constants/colors.ts b/frontend/constants/colors.ts
+---------index 3c2bcd5..f8b29e5 100644
+------------ a/frontend/constants/colors.ts
+---------+++ b/frontend/constants/colors.ts
+---------@@ -1,25 +1,26 @@
+----------// ألوان العلم الألماني: أسود، أحمر، أصفر/ذهبي
+---------+// ألوان ChancenMarket - Dark Mode الناعم مع الهوية الألمانية
+--------- export const COLORS = {
+----------  // Primary colors (German flag)
+----------  black: '#000000',
+----------  red: '#DD0000',
+----------  gold: '#FFCE00',
+---------+  // الخلفيات
+---------+  background: '#121212',        // أسود ناعم بدلاً من #000000
+---------+  cardBackground: '#1E1E1E',    // رمادي داكن للكاردات
+---------   
+----------  // Background
+----------  background: '#0A0A0A',
+----------  cardBackground: '#1A1A1A',
+---------+  // الألوان الأساسية (العلم الألماني - نسخة ناعمة)
+---------+  black: '#1A1A1A',            // أسود ناعم
+---------+  red: '#E53935',              // أحمر أقل حدة
+---------+  gold: '#FFB300',             // ذهبي دافئ
+---------   
+----------  // Text
+----------  textPrimary: '#FFFFFF',
+----------  textSecondary: '#B0B0B0',
+----------  textMuted: '#707070',
+---------+  // النصوص
+---------+  textPrimary: '#E0E0E0',      // رمادي فاتح للنص الأساسي
+---------+  textSecondary: '#B0B0B0',    // رمادي متوسط للنص الثانوي
+---------+  textMuted: '#757575',        // رمادي داكن للنص الخافت
+---------   
+----------  // Accents
+----------  primary: '#DD0000',
+----------  secondary: '#FFCE00',
+----------  success: '#00DD00',
+---------+  // الحدود والخطوط
+---------+  border: '#2A2A2A',           // حدود ناعمة
+---------+  borderLight: '#3A3A3A',      // حدود أفتح
+---------   
+----------  // Borders
+----------  border: '#2A2A2A',
+----------  borderLight: '#3A3A3A',
+---------+  // ألوان إضافية
+---------+  success: '#4CAF50',          // أخضر للنجاح
+---------+  error: '#EF5350',            // أحمر للأخطاء
+---------+  warning: '#FFA726',          // برتقالي للتحذيرات
+---------+  info: '#42A5F5',             // أزرق للمعلومات
+--------- };
