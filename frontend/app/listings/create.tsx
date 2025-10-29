@@ -350,6 +350,30 @@ export default function CreateListingScreen() {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Videos (optional, max. 2)</Text>
+          <View style={styles.imagesContainer}>
+            {videos.map((video, index) => (
+              <View key={index} style={styles.videoWrapper}>
+                <View style={styles.videoPlaceholder}>
+                  <Ionicons name="videocam" size={48} color={COLORS.gold} />
+                  <Text style={styles.videoText}>Video {index + 1}</Text>
+                </View>
+                <TouchableOpacity style={styles.removeImageButton} onPress={() => removeVideo(index)}>
+                  <Ionicons name="close-circle" size={24} color={COLORS.red} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {videos.length < 2 && (
+              <TouchableOpacity style={styles.addImageButton} onPress={pickVideos}>
+                <Ionicons name="videocam-outline" size={32} color={COLORS.gold} />
+                <Text style={styles.addVideoText}>Video hinzufügen</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text style={styles.helperText}>Max. 50 MB pro Video</Text>
+        </View>
+
         <TouchableOpacity style={[styles.submitButton, loading && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={loading}>
           {loading ? <ActivityIndicator color={COLORS.black} /> : (<><Ionicons name="checkmark-circle" size={24} color={COLORS.black} /><Text style={styles.submitButtonText}>Anzeige veröffentlichen</Text></>)}
         </TouchableOpacity>
