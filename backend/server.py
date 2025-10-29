@@ -381,6 +381,15 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
         if conv_key not in conversations:
             other_user = await db.users.find_one({"id": other_user_id})
             listing = await db.listings.find_one({"id": msg['listing_id']})
+            
+            # Count unread messages from this user
+            unread_count = await db.messages.count_documents({
+                "listing_id": msg['listing_id'],
+                "from_user_id": other_user_id,
+                "to_user_id": user_id,
+                "read": False
+            })
+            
             conversations[conv_key] = {
                 "other_user_id": other_user_id,
                 "other_user_name": other_user['name'] if other_user else "Gelöschter Benutzer",
@@ -390,7 +399,7 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
                 "listing_image": listing['images'][0] if listing and listing.get('images') else None,
                 "last_message": msg['content'][:50],
                 "last_message_time": msg['created_at'],
-                "unread": 0
+                "unread_count": unread_count
             }
     return list(conversations.values())
 @api_router.get("/messages/unread-count")
